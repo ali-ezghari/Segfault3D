@@ -50,6 +50,7 @@ typedef struct s_game
     int mapX;
     int mapY;
     int mapS;
+    int tile_size;
     struct s_player player;
     struct s_img img;
 } t_game;

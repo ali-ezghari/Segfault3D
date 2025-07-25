@@ -27,9 +27,6 @@ void draw_tile(t_game *game, int x, int y, int size, int color)
 
 void draw_map(t_game *game)
 {
-	int tile_x_size = WIDTH / game->mapX;
-	int tile_y_size = HEIGHT / game->mapY;
-	int tile_size = MIN(tile_x_size, tile_y_size);
 	int pixel_x = 0;
 	int pixel_y = 0;
 
@@ -37,33 +34,44 @@ void draw_map(t_game *game)
 	{
 		for (int x = 0; x < game->mapX; x++)
 		{
-			pixel_x = x * tile_size;
-			pixel_y = y * tile_size;
+			pixel_x = x * game->tile_size;
+			pixel_y = y * game->tile_size;
 			if (game->map[y * game->mapX + x] == 1)
 			{
-				draw_tile(game, pixel_x, pixel_y, tile_size, COLOR_WHITE);
+				draw_tile(game, pixel_x, pixel_y, game->tile_size , COLOR_WHITE);
 			}
 			else
-				draw_tile(game, pixel_x, pixel_y, tile_size, COLOR_GREY);
+				draw_tile(game, pixel_x, pixel_y, game->tile_size, COLOR_BLACK);
 		}
 	}
 
-	draw_player(game, tile_size, COLOR_RED);
+	draw_player(game, game->tile_size, COLOR_RED);
 }
 
 int handle_keypress(int keycode, t_game *game)
-{
+{	
+	double px = game->player.px;
+	double py = game->player.py;
+	
 	if (keycode == 65307)
 		exit(0);
 	else if (keycode == 119)
-		game->player.py -= 0.1;
+		py -= 0.1;
 	else if (keycode == 115)
-		game->player.py += 0.1;
+		py += 0.1;
 	else if (keycode == 97)
-		game->player.px -= 0.1;
+		px -= 0.1;
 	else if (keycode == 100)
-		game->player.px += 0.1;
+		px += 0.1;
 	
+
+	int tile_x = (int)px;
+	int tile_y = (int)py;
+	if (game->map[tile_y * game->mapX + tile_x] == 0)
+	{
+		game->player.px = px;
+		game->player.py = py;
+	}
 	draw_map(game);
 	return (0);
 }
@@ -93,7 +101,7 @@ int main()
 	game.player.px = 2;
 	game.player.py = 2;
 	game.mapS = game.mapX * game.mapY;
-
+	game.tile_size = MIN((WIDTH / game.mapX), (HEIGHT / game.mapY));
 	draw_map(&game);
 	mlx_hook(game.win_window, 2, 1L << 0, handle_keypress, &game);
 
