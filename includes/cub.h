@@ -17,8 +17,8 @@
 #define UP_ARROW 65362
 #define DOWN_ARROW 65364
 
-#define WIDTH 500
-#define HEIGHT 500
+#define WIDTH 1000
+#define HEIGHT 1000
 #define PLAYER_SIZE 15
 #define COLOR_RED 0xFF0000
 #define COLOR_GREEN 0x00FF00

@@ -1,5 +1,13 @@
 #include "../includes/cub.h"
 
+void	my_mlx_pixel_put(t_game *data, int x, int y, int color)
+{
+	char	*dst;
+
+	dst = data->img.img_pixel_ptr + (y * data->img.line_length + x * (data->img.bits_per_pixel / 8));
+	*(unsigned int*)dst = color;
+}
+
 void draw_player(t_game *game, int tile_size, int color)
 {
 	int player_sx = tile_size * game->player.px;
@@ -9,7 +17,7 @@ void draw_player(t_game *game, int tile_size, int color)
 	{
 		for (int x = 0; x < PLAYER_SIZE; x++)
 		{
-			mlx_pixel_put(game->mlx_connection, game->win_window, x + player_sx, y + player_sy, color);
+			my_mlx_pixel_put(game, x + player_sx, y + player_sy, color);
 		}
 	}
 }
@@ -20,7 +28,10 @@ void draw_tile(t_game *game, int x, int y, int size, int color)
 	{
 		for (int j = 0; j < size; j++)
 		{
-			mlx_pixel_put(game->mlx_connection, game->win_window, x + j, y + i, color);
+			if (i == 0 || i == game->tile_size - 1 && j == 0 || j == game->tile_size - 1)
+				my_mlx_pixel_put(game, x + j, y + i, COLOR_BLACK); // draw the gap between the tiles
+			else
+				my_mlx_pixel_put(game, x + j, y + i, color);
 		}
 	}
 }
@@ -37,15 +48,15 @@ void draw_map(t_game *game)
 			pixel_x = x * game->tile_size;
 			pixel_y = y * game->tile_size;
 			if (game->map[y * game->mapX + x] == 1)
-			{
 				draw_tile(game, pixel_x, pixel_y, game->tile_size , COLOR_WHITE);
-			}
 			else
 				draw_tile(game, pixel_x, pixel_y, game->tile_size, COLOR_BLACK);
 		}
 	}
 
 	draw_player(game, game->tile_size, COLOR_RED);
+	mlx_put_image_to_window(game->mlx_connection, game->win_window, game->img.img_ptr, 0 ,0 );
+
 }
 
 int handle_keypress(int keycode, t_game *game)
@@ -67,6 +78,7 @@ int handle_keypress(int keycode, t_game *game)
 
 	int tile_x = (int)px;
 	int tile_y = (int)py;
+
 	if (game->map[tile_y * game->mapX + tile_x] == 0)
 	{
 		game->player.px = px;
