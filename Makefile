@@ -18,7 +18,7 @@ all: $(NAME)
 	@echo "$(GREEN)Compiled $< $(GREEN_CHECK)$(RESET)"
 
 $(NAME): $(OBJS)
-	@$(CC) $(FLAGS) $(OBJS) -Lmlx_linux -lmlx_Linux -lXext -lX11 -lm -o $(NAME)
+	@$(CC) $(FLAGS) $(OBJS) -Lminilibx-linux -lmlx_Linux -lXext -lX11 -lm -o $(NAME)
 	@echo "$(GREEN)Mandatory: $(NAME) was created $(GREEN_CHECK)$(RESET)"
 	
 clean:
