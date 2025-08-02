@@ -1,0 +1,7 @@
+.o
+.so
+.DS_store
+.vscode/
+.tmp
+.swp
+a.out
