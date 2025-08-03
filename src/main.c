@@ -8,6 +8,16 @@ void my_mlx_pixel_put(t_game *data, int x, int y, int color)
 	*(unsigned int *)dst = color;
 }
 
+double normalizeAngle(double angle)
+{
+	angle = fmod(angle, 2 * PI);
+	if (angle < 0)
+	{
+		angle += (2 * PI);
+	}
+	return (angle);
+}
+
 void drawLine(t_game *game, int x0, int y0, int x1, int y1, int color)
 {
 	int dx = abs(x1 - x0);
@@ -49,46 +59,72 @@ int hasWallAt(t_game *game, t_player *player, int x, int y)
 	return (map[map_y][map_x] != 0);
 }
 
-void castRay(t_game *game, t_player *player, double rayAngle)
+int in_bounds(double x, double y, t_game *game)
 {
-
-	double rayDirX = cos(rayAngle);
-	double rayDirY = sin(rayAngle);
-	double stepSize = 0.5;
-	double maxRayLen = 40;
-	double rayLen = 0;
-	double nextX = player->px;
-	double nextY = player->py;
-
-	while (rayLen < maxRayLen)
-	{
-		nextX += rayDirX * stepSize;
-		nextY +=  rayDirY * stepSize;
-
-		if (hasWallAt(game, &game->player, nextX, nextY))
-		{
-			break;
-		}
-		
-	}
-
-	drawLine(game, player->px, player->py, nextX, nextY, COLOR_RED);
+	return (
+		x >= 0 &&
+		x < game->width * game->tile_size &&
+		y >= 0 &&
+		y < game->height * game->tile_size);
 }
 
-void bismiLah(t_game *game, t_player *player)
+// double rayDirX = cos(rayAngle);
+// double rayDirY = sin(rayAngle);
+void castRay(t_game *game, t_player *player, double rayAngle, int column)
+{
+
+	double x_intercept, y_intercept;
+
+	double step_x, step_y;
+
+	double wall_hit_x, wall_hit_y, distance;
+
+	double is_ray_facing_down = rayAngle > 0 && rayAngle < PI;
+	double is_ray_facing_up = !is_ray_facing_down;
+	double is_ray_facing_right = rayAngle < PI * 0.5 || rayAngle > 1.5 * PI;
+	double is_ray_facing_left = !is_ray_facing_right;
+
+	//
+	// finding the horizontal intersections
+	//
+	// find the closest horizontal y intersection point
+	y_intercept = floor(player->py / game->tile_size) * game->tile_size;
+	if (is_ray_facing_down)
+	{
+		y_intercept += game->tile_size;
+	}
+
+	// find the closest horizontal x intersection point
+	x_intercept = player->px + (player->py - y_intercept) / tan(rayAngle);
+
+	// calculate the increament xstep and ystep
+	step_y = game->tile_size;
+	step_y *= is_ray_facing_up ? -1 : 1;
+
+	step_x = step_y / tan(rayAngle);
+	step_x *= (is_ray_facing_left && step_x > 0) ? -1 : 1;
+	step_x *= (is_ray_facing_right && step_x < 0) ? -1 : 1;
+
+	
+
+	// drawLine(game, player->px, player->py, x_intercept, y_intercept, COLOR_RED);
+}
+
+void cast_all_rays(t_game *game, t_player *player)
 {
 	double fov = 60.0 * (PI / 180);
-	int column = 0;
 	double rayAngle = player->rotationAngle - (fov / 2.0);
+	int column = 0;
 	int i = 0;
-	int raysNum = 320;
 
-	while (i < raysNum)
+	int wall_striple_width = 1;
+	int num_of_rays = game->width / wall_striple_width;
+
+	while (i++ < num_of_rays)
 	{
-		castRay(game, &game->player, rayAngle);
-		rayAngle += fov / raysNum;
+		castRay(game, &game->player, normalizeAngle(rayAngle), column);
+		rayAngle += fov / num_of_rays;
 		column++;
-		i++;
 	}
 }
 
@@ -126,9 +162,9 @@ void drawPlayer(t_game *game, t_player *player, int color)
 	}
 
 	// calculates the distance between player and the desired point that is 30pixel away
-	double end_x = player->px + (cos(player->rotationAngle) * 30);
-	double end_y = player->py + (sin(player->rotationAngle) * 30);
-	drawLine(game, player->px, player->py, end_x, end_y, COLOR_RED);
+	// double end_x = player->px + (cos(player->rotationAngle) * 30);
+	// double end_y = player->py + (sin(player->rotationAngle) * 30);
+	// drawLine(game, player->px, player->py, end_x, end_y, COLOR_RED);
 }
 
 void draw_rec(t_game *game, int x, int y, int size, int color)
@@ -155,7 +191,7 @@ void draw(t_game *game)
 		}
 	}
 	drawPlayer(game, &game->player, COLOR_RED);
-	bismiLah(game, &game->player);
+	cast_all_rays(game, &game->player);
 	mlx_put_image_to_window(game->mlx_connection, game->win_window, game->img.img_ptr, 0, 0);
 }
 
@@ -203,7 +239,7 @@ int main()
 	game.player.px = game.width / 2;
 	game.player.py = game.height / 2;
 	game.player.moveSpeed = 2.00;
-	game.player.radius = 3;
+	game.player.radius = 4;
 	game.player.walkDirection = 0;
 	game.player.turnDirection = 0;
 	game.player.rotationAngle = PI / 2;
