@@ -1,4 +1,5 @@
-.o
+*.o
+*/libft.a
 .so
 .DS_store
 .vscode/
