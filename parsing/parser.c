@@ -37,8 +37,8 @@ typedef struct g_color
 
 typedef struct g_map_info
 {
-    t_color color;
     t_directions dir;
+    t_color color;
     char **map;
 } t_map_info;
 
@@ -250,7 +250,6 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
         }
         else if (gnl_ret[0] == '\0' || ft_strncmp(gnl_ret, "\n", 1) == 0 || ft_is_all_spaces(gnl_ret))
         {
-            printf("hna\n");
             gnl_ret = get_next_line(fd);
             if (tmp)
                 free(tmp);
@@ -285,10 +284,8 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
 
     while (gnl_ret && (ft_strncmp(gnl_ret, "\n", 1) != 0 || !ft_is_all_spaces(gnl_ret)))
     {
-        // printf("line before store --> [%s]\n", gnl_ret);
         len = ft_strlen(gnl_ret);
         data->map[i] = malloc(len + 1);
-        // ft_strlcpy(data->map[i], gnl_ret, len);
         data->map[i] = ft_strdup(gnl_ret);
         if (data->map[i] && data->map[i][strlen(data->map[i]) - 1] == '\n')
             data->map[i][strlen(data->map[i]) - 1] = '\0';
@@ -298,11 +295,6 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
         gnl_ret = get_next_line(fd);
     }
     data->map[i] = NULL;
-
-            //     printf("\n------------ stor ------------\n\n");
-            // for (int i = 0; data->map[i] != NULL; i++)
-            //     printf("%s\n", data->map[i]);
-
 
     free(gnl_ret);
     return (0);
@@ -359,9 +351,6 @@ int find_position(char **map, char targt, int *x, int *y)
 
 int flood_fill(char **map, char targt, int x, int y)
 {
-    // (void)map;
-    // (void)x;
-    // (void)y;
 
     if (map[x][y] == '\0' || map[x][y] == ' ')
         exit_error(2, "Invalid map, map must be surrounded by walls\n");
@@ -403,17 +392,16 @@ int ft_notmemchar(const char *str, char c, int count_sp)
     return (1);
 }
 
-int check_if_map_valid(char **map)
+int check_if_map_valid(char **map, int len)
 {
     char start_dir;
     int  dir_check = '\0';
-    int total_len = total_lines(map);
-
+    
     int i = 0;
     dir_check = 0;
     while (map[i])
     {
-        if (i == 0 || i == total_len - 1)
+        if (i == 0 || i == len - 1)
         {
             if (!ft_notmemchar(map[i], '1', 1))
                 return (1);
@@ -451,16 +439,27 @@ int check_if_map_valid(char **map)
             return (1);
         next_char = '0';
     }
-
-    printf("\n------------ map ------------\n\n");
-    for (int i = 0; map[i] != NULL; i++)
-        printf("%s\n", map[i]);
-    
-    printf("\n------------ dir ------------\n");
-    printf("start diriction : [%c]\n", start_dir);
-
     return (0);
 }
+
+char **copy_array(char **original, int rows)
+{
+    int i = 0;
+    char **copy = malloc(sizeof(char *) * (rows + 1));
+    if (!copy)
+        return NULL;
+
+    while (i < rows)
+    {
+        copy[i] = ft_strdup(original[i]);
+        if (!copy[i])
+            return NULL;
+        i++;
+    }
+    copy[rows] = NULL; 
+    return copy;
+}
+
 
 int parser(int argc, char *argv, t_map_info *data)
 {
@@ -481,17 +480,12 @@ int parser(int argc, char *argv, t_map_info *data)
             if (init_data(fd, data, map_lines))
                 exit_error(2, "Invalid file content\n");
 
-            // printf("\n------------ bev ------------\n\n");
-            // for (int i = 0; data->map[i] != NULL; i++)
-            //     printf("%s\n", data->map[i]);
+            int total_len = total_lines(data->map);
+            char **map_copy = copy_array(data->map, total_len);
 
-            if (check_if_map_valid(data->map))
+            if (check_if_map_valid(map_copy, total_len))
                 exit_error(2, "Invalid map\n");
-
-            // printf("\n------------ aft ------------\n\n");
-            // for (int i = 0; data->map[i] != NULL; i++)
-            //     printf("%s\n", data->map[i]);
-
+            free_str_array(map_copy);
         }
         else if (fd == -1)
         {
@@ -506,8 +500,6 @@ int parser(int argc, char *argv, t_map_info *data)
 }
 
 
-
-
 int main(int argc, char *argv[])
 {
     t_map_info *data;
@@ -518,23 +510,23 @@ int main(int argc, char *argv[])
     
     parser(argc, argv[1], data);
     
-    // /* print after init the value  */
-    // printf("\n================ map ================\n");
-    // for (int i = 0; data->map[i] != NULL; i++)
-    //     printf("---> %s\n", data->map[i]);
+    /* print after init the value  */
+    printf("\n================ map ================\n");
+    for (int i = 0; data->map[i] != NULL; i++)
+        printf("---> %s\n", data->map[i]);
 
-    // printf("\n=============== COLOR ===============\n");
-    // printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
-    // printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
-    // printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
-    // printf("number of ceil color : [%d]\n", data->color.floor.num_color);
+    printf("\n=============== COLOR ===============\n");
+    printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
+    printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
+    printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
+    printf("number of ceil color : [%d]\n", data->color.floor.num_color);
 
-    // printf("\n===============  dir  ===============\n");
-    // printf("NO : [%s]\n", data->dir.NO);
-    // printf("WE : [%s]\n", data->dir.WE);
-    // printf("SO : [%s]\n", data->dir.SO);
-    // printf("EA : [%s]\n", data->dir.EA);
-    // printf("\n=====================================\n");
+    printf("\n===============  dir  ===============\n");
+    printf("NO : [%s]\n", data->dir.NO);
+    printf("WE : [%s]\n", data->dir.WE);
+    printf("SO : [%s]\n", data->dir.SO);
+    printf("EA : [%s]\n", data->dir.EA);
+    printf("\n=====================================\n");
 
 
     free_str_array(data->map);
