@@ -1,7 +1,7 @@
 CC        = gcc
 RM        = rm -rf
 NAME      = parser
-SRCS      = parser.c ../get_next_line/get_next_line_bonus.c \
+SRCS      = parser.c parser_utils.c ../get_next_line/get_next_line_bonus.c \
 		    ../get_next_line/get_next_line_utils_bonus.c
 
 OBJS      = $(SRCS:.c=.o)

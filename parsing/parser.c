@@ -1,60 +1,10 @@
-#include <unistd.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include "../libft/libft.h"
-#include "../get_next_line/get_next_line.h"
-#define PATH_MAX 4096 // you can call the path max in <limits.h>
-
-typedef struct s_day_check
-{
-    char *named; 
-    int checked;
-}   t_argv_check;
-
-typedef struct  g_directions
-{
-    char NO[PATH_MAX];
-    char SO[PATH_MAX];
-    char WE[PATH_MAX];
-    char EA[PATH_MAX];
-}   t_directions;
-
-typedef struct g_color_data
-{
-    int num_color;
-    int RGB[3];
-}   t_color_data;
-
-typedef struct g_color
-{
-    t_color_data ceil;
-    t_color_data floor;
-}   t_color;
-
-
-typedef struct g_map_info
-{
-    t_directions dir;
-    t_color color;
-    char **map;
-} t_map_info;
-
-void free_str_array(char **arr)
-{
-    char **tmp = arr;
-    while (*tmp)
-        free(*tmp++);
-    free(arr);
-}
+#include "parser.h"
 
 void exit_error(int stauts, char *message)
 {
     if (stauts == 2)
         write (2, "Error: ", 7);
-    write(stauts, message, strlen(message));
+    write(stauts, message, ft_strlen(message));
     exit(stauts);
 }
 
@@ -62,8 +12,8 @@ int is_valid_name_file(char *argv)
 {
     int len;
 
-    len = strlen(argv);
-    if (strstr(argv + (len - 4), ".cub"))
+    len = ft_strlen(argv);
+    if (ft_strnstr(argv + (len - 4), ".cub", 4))
         return (1);
     return (0);
 }
@@ -73,8 +23,8 @@ int init_directions(char *line, char *dir)
     int fd;
     char *tmp = ft_strchr(line, '.');
 
-    if (tmp && tmp[strlen(tmp) - 1] == '\n')
-            tmp[strlen(tmp) - 1] = '\0';
+    if (tmp && tmp[ft_strlen(tmp) - 1] == '\n')
+            tmp[ft_strlen(tmp) - 1] = '\0';
     
     if (tmp == NULL)
         exit_error(2, "Invalid one of texture\n");
@@ -90,64 +40,6 @@ int init_directions(char *line, char *dir)
     return (1);
 }
 
-int ft_isspace(unsigned char c)
-{
-    return (c == ' ' || c == '\t' || c == '\n' || 
-            c == '\v' || c == '\f' || c == '\r');
-}
-
-
-int ft_is_all_spaces(const char *s)
-{
-    if (!s || !*s)
-        return (0);
-    while (*s)
-        if (!ft_isspace((unsigned char)*s++))
-            return (0);
-    return (1);   
-}
-
-int digits_count(int n) 
-{
-    int count = 0;
-    if (n == 0) 
-        return 1;
-    while (n != 0) 
-    {
-        n /= 10;
-        count++;
-    }
-    return count;
-}
-
-
-int ft_is_all_digits(const char *s)
-{
-    char *tmp;
-    char *iter;
-
-    if (!s || !*s)
-        return (0);
-
-    tmp = ft_strtrim(s, " ");
-    if (!tmp)
-        return (0);
-
-    iter = tmp;
-    while (*iter)
-    {
-        if (!ft_isdigit((unsigned char)*iter))
-        {
-            free(tmp);
-            return (0);
-        }
-        iter++;
-    }
-    free(tmp);
-    return (1);
-}
-
-
 int init_color(char *line, t_color_data *color)
 {
     int i = 0;
@@ -155,8 +47,8 @@ int init_color(char *line, t_color_data *color)
     if (line == NULL)
         return (0);
         
-   if (line && line[strlen(line) - 1] == '\n')
-            line[strlen(line) - 1] = '\0';
+   if (line && line[ft_strlen(line) - 1] == '\n')
+            line[ft_strlen(line) - 1] = '\0';
 
     while (line[i])
     {
@@ -284,11 +176,14 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
 
     while (gnl_ret && (ft_strncmp(gnl_ret, "\n", 1) != 0 || !ft_is_all_spaces(gnl_ret)))
     {
-        len = ft_strlen(gnl_ret);
-        data->map[i] = malloc(len + 1);
+        // data->map[i] = malloc(len + 1);
         data->map[i] = ft_strdup(gnl_ret);
-        if (data->map[i] && data->map[i][strlen(data->map[i]) - 1] == '\n')
-            data->map[i][strlen(data->map[i]) - 1] = '\0';
+        if (!data->map[i])
+            break;
+        // ft_strlcpy(data->map[i], gnl_ret, len);
+        len = ft_strlen(data->map[i]);
+        if (data->map[i] && data->map[i][len - 1] == '\n')
+            data->map[i][len - 1] = '\0';
 
         i++;
         free(gnl_ret);
@@ -304,26 +199,31 @@ int count_map_lines(int fd)
 {
     int count = 0;
     char *tmp;
+    char *ptr;
 
     tmp = get_next_line(fd);
     while (tmp)
     {
-        if ( !(ft_strncmp(tmp, "NO", 2) == 0 ||
-               ft_strncmp(tmp, "SO", 2) == 0 || 
-               ft_strncmp(tmp, "WE", 2) == 0 || 
-               ft_strncmp(tmp, "EA", 2) == 0 || 
-               ft_strncmp(tmp, "F",  1) == 0 ||
-               ft_strncmp(tmp, "C",  1) == 0 || 
-               ft_strncmp(tmp, "\n", 1) == 0 ))
+        ptr = tmp; // keep original for free
+        while (*ptr == ' ')
+            ptr++;
+
+        if (!(ft_strncmp(ptr, "NO", 2) == 0 ||
+              ft_strncmp(ptr, "SO", 2) == 0 || 
+              ft_strncmp(ptr, "WE", 2) == 0 || 
+              ft_strncmp(ptr, "EA", 2) == 0 || 
+              ft_strncmp(ptr, "F",  1) == 0 ||
+              ft_strncmp(ptr, "C",  1) == 0 || 
+              ft_strncmp(ptr, "\n", 1) == 0))
         {
             count++;
         }
-        free(tmp);
+
+        free(tmp); // free original pointer
         tmp = get_next_line(fd);
     }
-    free(tmp);
     close(fd);
-    return (count);
+    return count;
 }
 
 int find_position(char **map, char targt, int *x, int *y)
@@ -366,35 +266,11 @@ int flood_fill(char **map, char targt, int x, int y)
     return (0);
 }
 
-int total_lines(char **arr)
+int check_if_map_valid(char **map, int len, t_map_info *data)
 {
-    int i = 0;
-    int count = 0;
+    // char start_dir;
 
-    while (arr[i++])
-        count++;
-    return (count);
-}
-
-int ft_notmemchar(const char *str, char c, int count_sp)
-{
-    if (!str)
-        return (0);
-
-    while (*str)
-    {
-        if (count_sp && *str == ' ')
-            ;
-        else if (*str != c)
-            return (0);
-        str++;
-    }
-    return (1);
-}
-
-int check_if_map_valid(char **map, int len)
-{
-    char start_dir;
+    data->s_dir.dir = '\0';
     int  dir_check = '\0';
     
     int i = 0;
@@ -413,10 +289,10 @@ int check_if_map_valid(char **map, int len)
             if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
             {
                 if (dir_check)
-                {
                     return (1);
-                }
-                start_dir = map[i][j];
+                data->s_dir.dir = map[i][j];
+                data->s_dir.x = i;
+                data->s_dir.y = j;
                 dir_check = 1;
             }
             else if (!(map[i][j] == '0' || map[i][j] == '1' || map[i][j] == ' '))
@@ -431,7 +307,7 @@ int check_if_map_valid(char **map, int len)
     if (dir_check == '\0')
         exit_error(2, "Invalid map, Add player's start position\n");
 
-    char next_char = start_dir;
+    char next_char = data->s_dir.dir;
     int x, y;
     while (find_position(map, next_char, &x, &y))
     {        
@@ -441,25 +317,6 @@ int check_if_map_valid(char **map, int len)
     }
     return (0);
 }
-
-char **copy_array(char **original, int rows)
-{
-    int i = 0;
-    char **copy = malloc(sizeof(char *) * (rows + 1));
-    if (!copy)
-        return NULL;
-
-    while (i < rows)
-    {
-        copy[i] = ft_strdup(original[i]);
-        if (!copy[i])
-            return NULL;
-        i++;
-    }
-    copy[rows] = NULL; 
-    return copy;
-}
-
 
 int parser(int argc, char *argv, t_map_info *data)
 {
@@ -481,15 +338,17 @@ int parser(int argc, char *argv, t_map_info *data)
                 exit_error(2, "Invalid file content\n");
 
             int total_len = total_lines(data->map);
+            // printf("map lines : $[%d]\n", map_lines);
+            // printf("total len : $[%d]\n", total_len);
             char **map_copy = copy_array(data->map, total_len);
 
-            if (check_if_map_valid(map_copy, total_len))
+            if (check_if_map_valid(map_copy, total_len, data))
                 exit_error(2, "Invalid map\n");
             free_str_array(map_copy);
         }
         else if (fd == -1)
         {
-            exit_error(errno, "Opening file.\n");
+            exit_error(2, "Opening file.\n");
         }
     }
     else
@@ -498,7 +357,6 @@ int parser(int argc, char *argv, t_map_info *data)
     }
     return (0);
 }
-
 
 int main(int argc, char *argv[])
 {
@@ -510,23 +368,28 @@ int main(int argc, char *argv[])
     
     parser(argc, argv[1], data);
     
-    /* print after init the value  */
-    printf("\n================ map ================\n");
-    for (int i = 0; data->map[i] != NULL; i++)
-        printf("---> %s\n", data->map[i]);
+    // /* print after init the value  */
+    // printf("\n================ map ================\n");
+    // for (int i = 0; data->map[i] != NULL; i++)
+    //     printf("---> %s\n", data->map[i]);
 
-    printf("\n=============== COLOR ===============\n");
-    printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
-    printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
-    printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
-    printf("number of ceil color : [%d]\n", data->color.floor.num_color);
+    // printf("\n=============== COLOR ===============\n");
+    // printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
+    // printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
+    // printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
+    // printf("number of ceil color : [%d]\n", data->color.floor.num_color);
 
-    printf("\n===============  dir  ===============\n");
-    printf("NO : [%s]\n", data->dir.NO);
-    printf("WE : [%s]\n", data->dir.WE);
-    printf("SO : [%s]\n", data->dir.SO);
-    printf("EA : [%s]\n", data->dir.EA);
-    printf("\n=====================================\n");
+    // printf("\n===============  dir  ===============\n");
+    // printf("NO : [%s]\n", data->dir.NO);
+    // printf("WE : [%s]\n", data->dir.WE);
+    // printf("SO : [%s]\n", data->dir.SO);
+    // printf("EA : [%s]\n\n", data->dir.EA);
+
+    // printf("Start dir   : [%c]\n", data->s_dir.dir);
+    // printf("Start dir x : [%d]\n", data->s_dir.x + 1);
+    // printf("Start dir y : [%d]\n", data->s_dir.y + 1);
+
+    // printf("=====================================\n");
 
 
     free_str_array(data->map);
