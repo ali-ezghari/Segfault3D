@@ -1,7 +1,11 @@
 #include "parser.h"
 
-void exit_error(int stauts, char *message)
+void exit_error(int stauts, char *message, t_map_info *data)
 {
+    if (data->map)
+        free_str_array(data->map);
+    if (data)
+        free(data);
     if (stauts == 2)
         write (2, "Error: ", 7);
     write(stauts, message, ft_strlen(message));
@@ -18,34 +22,33 @@ int is_valid_name_file(char *argv)
     return (0);
 }
 
-int init_directions(char *line, char *dir)
+void init_directions(char *line, char *dir, t_map_info *data)
 {
     int fd;
-    char *tmp = ft_strchr(line, '.');
-
-    if (tmp && tmp[ft_strlen(tmp) - 1] == '\n')
-            tmp[ft_strlen(tmp) - 1] = '\0';
+    char *tmp = line + 2;
     
-    if (tmp == NULL)
-        exit_error(2, "Invalid one of texture\n");
+    while (ft_isspace(*tmp))
+        tmp++;
+ 
+    if (tmp && tmp[ft_strlen(tmp) - 1] == '\n')
+        tmp[ft_strlen(tmp) - 1] = '\0';
+        
+    if (tmp == NULL || ft_strncmp(tmp, "./", 2) || ft_strlen(tmp) <= 2)
+        exit_error(2, "Invalid one of texture, ronge texture path\n", data);
     else
     {
         ft_strlcpy(dir, tmp, PATH_MAX - 1);
         fd = open(dir, O_RDONLY);
         if (fd == -1)
         {
-            exit_error(2, "Invalid one of texture can't open\n");
+            exit_error(2, "Invalid one of texture can't open\n", data);
         }
     }
-    return (1);
 }
 
-int init_color(char *line, t_color_data *color)
+void init_color(char *line, t_color_data *color, t_map_info *data)
 {
     int i = 0;
-
-    if (line == NULL)
-        return (0);
         
    if (line && line[ft_strlen(line) - 1] == '\n')
             line[ft_strlen(line) - 1] = '\0';
@@ -68,12 +71,12 @@ int init_color(char *line, t_color_data *color)
     while (*tmp)
     {
         if (!ft_is_all_digits(*tmp))
-            exit_error(2, "Invalid color number input\n");
+            exit_error(2, "Invalid color number input\n", data);
         color->RGB[i] = ft_atoi(*tmp);
 
         if ((color->RGB[i] < 0 || color->RGB[i] > 255))
         {
-            exit_error(2, "Invalid color struct\n");
+            exit_error(2, "Invalid color number [0 to 255]\n", data);
         }
         i++;
         tmp++;
@@ -81,7 +84,6 @@ int init_color(char *line, t_color_data *color)
 
     color->num_color = (color->RGB[0] << 16) | (color->RGB[1] << 8) | color->RGB[2];
     free_str_array(rgb);
-    return (1);
 }
 
 int is_all_checked(t_argv_check *map_argv)
@@ -113,32 +115,32 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
         if (ft_strncmp(gnl_ret, "NO ", 3) == 0)
         {
             map_argv[0].checked = 1;
-            init_directions(gnl_ret, data->dir.NO);
+            init_directions(gnl_ret, data->dir.NO, data);
         }
         else if (ft_strncmp(gnl_ret, "SO ", 3) == 0)
         {
             map_argv[1].checked = 1;
-            init_directions(gnl_ret, data->dir.SO);
+            init_directions(gnl_ret, data->dir.SO, data);
         }
         else if (ft_strncmp(gnl_ret, "WE ", 3) == 0)
         {
             map_argv[2].checked = 1;
-            init_directions(gnl_ret, data->dir.WE);
+            init_directions(gnl_ret, data->dir.WE, data);
         }
         else if (ft_strncmp(gnl_ret, "EA ", 3) ==  0)
         {
             map_argv[3].checked = 1;
-            init_directions(gnl_ret, data->dir.EA);
+            init_directions(gnl_ret, data->dir.EA, data);
         }
         else if (ft_strncmp(gnl_ret, "F ", 2) == 0)
         {
             map_argv[4].checked = 1;
-            init_color(gnl_ret, &data->color.floor);
+            init_color(gnl_ret, &data->color.floor, data);
         }
         else if (ft_strncmp(gnl_ret, "C ", 2) == 0)
         {
             map_argv[5].checked = 1;
-            init_color(gnl_ret, &data->color.ceil);
+            init_color(gnl_ret, &data->color.ceil, data);
         }
         else if (gnl_ret[0] == '\0' || ft_strncmp(gnl_ret, "\n", 1) == 0 || ft_is_all_spaces(gnl_ret))
         {
@@ -147,14 +149,17 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
                 free(tmp);
             continue;
         }
-        else 
+        else
+        {
+            free(tmp);
             return (1);
+        }
         free(tmp);
         gnl_ret = get_next_line(fd);
     }
 
     if (gnl_ret == NULL)
-        exit_error(2, "Invalid file, file is empty\n");
+        exit_error(2, "Invalid file, file is empty\n", data);
     
     if (ft_strncmp(gnl_ret, "\n", 1) == 0 || ft_is_all_spaces(gnl_ret))
     {
@@ -176,11 +181,9 @@ int init_data(int fd, t_map_info *data, int total_map_lines)
 
     while (gnl_ret && (ft_strncmp(gnl_ret, "\n", 1) != 0 || !ft_is_all_spaces(gnl_ret)))
     {
-        // data->map[i] = malloc(len + 1);
         data->map[i] = ft_strdup(gnl_ret);
         if (!data->map[i])
             break;
-        // ft_strlcpy(data->map[i], gnl_ret, len);
         len = ft_strlen(data->map[i]);
         if (data->map[i] && data->map[i][len - 1] == '\n')
             data->map[i][len - 1] = '\0';
@@ -204,7 +207,7 @@ int count_map_lines(int fd)
     tmp = get_next_line(fd);
     while (tmp)
     {
-        ptr = tmp; // keep original for free
+        ptr = tmp;
         while (*ptr == ' ')
             ptr++;
 
@@ -219,7 +222,7 @@ int count_map_lines(int fd)
             count++;
         }
 
-        free(tmp); // free original pointer
+        free(tmp);
         tmp = get_next_line(fd);
     }
     close(fd);
@@ -249,27 +252,24 @@ int find_position(char **map, char targt, int *x, int *y)
     return (0);
 }
 
-int flood_fill(char **map, char targt, int x, int y)
+void flood_fill(t_map_info *data, char **map, char targt, int x, int y)
 {
 
     if (map[x][y] == '\0' || map[x][y] == ' ')
-        exit_error(2, "Invalid map, map must be surrounded by walls\n");
+        exit_error(2, "Invalid map, map must be surrounded by walls\n", data);
 
     if (map[x][y] == targt)
     {
         map[x][y] = 'x';
-        flood_fill(map, targt, x + 1, y);
-        flood_fill(map, targt, x - 1, y);
-        flood_fill(map, targt, x, y + 1);
-        flood_fill(map, targt, x, y - 1);
+        flood_fill(data, map, targt, x + 1, y);
+        flood_fill(data, map, targt, x - 1, y);
+        flood_fill(data, map, targt, x, y + 1);
+        flood_fill(data, map, targt, x, y - 1);
     }    
-    return (0);
 }
 
-int check_if_map_valid(char **map, int len, t_map_info *data)
+void check_if_map_valid(char **map, int len, t_map_info *data)
 {
-    // char start_dir;
-
     data->s_dir.dir = '\0';
     int  dir_check = '\0';
     
@@ -280,7 +280,7 @@ int check_if_map_valid(char **map, int len, t_map_info *data)
         if (i == 0 || i == len - 1)
         {
             if (!ft_notmemchar(map[i], '1', 1))
-                return (1);
+                exit_error(2, "Invalid map, the 1th the last line shuld be only \'1\'\n", data);
         }
 
         int j = 0;
@@ -289,33 +289,29 @@ int check_if_map_valid(char **map, int len, t_map_info *data)
             if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
             {
                 if (dir_check)
-                    return (1);
+                    exit_error(2, "Invalid map, only one diriction\n", data);
                 data->s_dir.dir = map[i][j];
                 data->s_dir.x = i;
                 data->s_dir.y = j;
                 dir_check = 1;
             }
             else if (!(map[i][j] == '0' || map[i][j] == '1' || map[i][j] == ' '))
-            {
-                return (1);
-            }
+                exit_error(2, "Invalid map, only that 6 character [0, 1, N, E, W, S] or space\n", data);
             j++;
         }
         i++;
     }
 
     if (dir_check == '\0')
-        exit_error(2, "Invalid map, Add player's start position\n");
+        exit_error(2, "Invalid map, Add player's start position\n", data);
 
     char next_char = data->s_dir.dir;
     int x, y;
     while (find_position(map, next_char, &x, &y))
     {        
-        if (flood_fill(map, next_char, x, y))
-            return (1);
+        flood_fill(data, map, next_char, x, y);
         next_char = '0';
     }
-    return (0);
 }
 
 int parser(int argc, char *argv, t_map_info *data)
@@ -327,7 +323,7 @@ int parser(int argc, char *argv, t_map_info *data)
     if (argc == 2)
     {
         if (!is_valid_name_file(argv))
-            exit_error(2, "Invalid name of file.\n");
+            exit_error(2, "Invalid name of file.\n", data);
 
         fd = open(argv, O_RDONLY);
         count_lines_fd = open(argv, O_RDONLY);
@@ -335,26 +331,18 @@ int parser(int argc, char *argv, t_map_info *data)
         if (fd != -1)
         {
             if (init_data(fd, data, map_lines))
-                exit_error(2, "Invalid file content\n");
+                exit_error(2, "Invalid file content\n", data);
 
             int total_len = total_lines(data->map);
-            // printf("map lines : $[%d]\n", map_lines);
-            // printf("total len : $[%d]\n", total_len);
             char **map_copy = copy_array(data->map, total_len);
-
-            if (check_if_map_valid(map_copy, total_len, data))
-                exit_error(2, "Invalid map\n");
+            check_if_map_valid(map_copy, total_len, data);
             free_str_array(map_copy);
         }
         else if (fd == -1)
-        {
-            exit_error(2, "Opening file.\n");
-        }
+            exit_error(2, "Opening file.\n", data);
     }
     else
-    {
-        exit_error(1, "Invalid number of arguments.\n");
-    }
+        exit_error(1, "Invalid number of arguments.\n", data);
     return (0);
 }
 
@@ -369,27 +357,27 @@ int main(int argc, char *argv[])
     parser(argc, argv[1], data);
     
     // /* print after init the value  */
-    // printf("\n================ map ================\n");
-    // for (int i = 0; data->map[i] != NULL; i++)
-    //     printf("---> %s\n", data->map[i]);
+    printf("\n================ map ================\n");
+    for (int i = 0; data->map[i] != NULL; i++)
+        printf("---> %s\n", data->map[i]);
 
-    // printf("\n=============== COLOR ===============\n");
-    // printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
-    // printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
-    // printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
-    // printf("number of ceil color : [%d]\n", data->color.floor.num_color);
+    printf("\n=============== COLOR ===============\n");
+    printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
+    printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
+    printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
+    printf("number of ceil color : [%d]\n", data->color.floor.num_color);
 
-    // printf("\n===============  dir  ===============\n");
-    // printf("NO : [%s]\n", data->dir.NO);
-    // printf("WE : [%s]\n", data->dir.WE);
-    // printf("SO : [%s]\n", data->dir.SO);
-    // printf("EA : [%s]\n\n", data->dir.EA);
+    printf("\n===============  dir  ===============\n");
+    printf("NO : [%s]\n", data->dir.NO);
+    printf("WE : [%s]\n", data->dir.WE);
+    printf("SO : [%s]\n", data->dir.SO);
+    printf("EA : [%s]\n\n", data->dir.EA);
 
-    // printf("Start dir   : [%c]\n", data->s_dir.dir);
-    // printf("Start dir x : [%d]\n", data->s_dir.x + 1);
-    // printf("Start dir y : [%d]\n", data->s_dir.y + 1);
+    printf("Start dir   : [%c]\n", data->s_dir.dir);
+    printf("Start dir x : [%d]\n", data->s_dir.x + 1);
+    printf("Start dir y : [%d]\n", data->s_dir.y + 1);
 
-    // printf("=====================================\n");
+    printf("=====================================\n");
 
 
     free_str_array(data->map);
