@@ -2,7 +2,8 @@ CC        = gcc
 RM        = rm -rf
 NAME      = parser
 SRCS      = parser.c parser_utils.c ../get_next_line/get_next_line_bonus.c \
-		    ../get_next_line/get_next_line_utils_bonus.c
+		    ../get_next_line/get_next_line_utils_bonus.c parser_utils_two.c \
+			check_map.c init_color_dir.c parser_utils_three.c
 
 OBJS      = $(SRCS:.c=.o)
 CFLAGS    = -Wall -Wextra -Werror

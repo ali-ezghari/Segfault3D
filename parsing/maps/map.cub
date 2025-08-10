@@ -1,13 +1,11 @@
    C  222,100,125
    F     010, 43,2
  
-WE ./path_to_the_south_texture
+WE ./maps/path_to_the_south_texture
   NO                                  ./maps/path_to_the_south_texture
 EA ./maps/path_to_the_south_texture
 SO ./maps/path_to_the_south_texture
-
-
-
+                      
 111
 1E1
 111
