@@ -1,18 +1,7 @@
 #ifndef CUB_H
 #define CUB_H
 
-int map[11][15] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1},
-    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1},
-    {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1},
-    {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+extern int map[11][15];
 
 #include <string.h>
 #include "../minilibx-linux/mlx.h"
@@ -44,7 +33,7 @@ int map[11][15] = {
 #define COLOR_BLACK 0x000000
 #define COLOR_GREY 0x808080
 
-#define SCALE_FACTOR 0.2
+#define SCALE_FACTOR 0.25
 typedef struct s_img
 {
     void *img_ptr;
@@ -97,5 +86,28 @@ typedef struct s_game
     struct s_player player;
     struct s_img img;
 } t_game;
+
+void my_mlx_pixel_put(t_game *data, int x, int y, int color);
+double normalizeAngle(double angle);
+void drawLine(t_game *game, int x0, int y0, int x1, int y1, int color);
+int hasWallAt(t_game *game, t_player *player, int x, int y);
+double distance_bet_points(double x0, double y0, double x1, double y1);
+void init_ray(t_ray *ray, double ray_angle);
+int handle_keypress(int keycode, t_game *game);
+int handle_keyrelease(int keycode, t_game *game);
+void draw(t_game *game);
+
+void castRay(t_game *game, t_player *player, t_ray *ray);
+void cast_all_rays(t_game *game, t_player *player);
+
+void draw(t_game *game);
+void draw_rec(t_game *game, int x, int y, int size, int color);
+void draw_player(t_game *game, t_player *player, int color);
+
+void update(t_game *game, t_player *player);
+
+void init_player(t_game *game, t_player *player);
+void init_game(t_game *game);
+void init_mlx(t_game *game);
 
 #endif

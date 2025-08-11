@@ -5,7 +5,7 @@ GREEN_CHECK = \033[32m✅\033[0m
 
 CC = cc
 FLAGS = #-Wall -Wextra -Werror
-SRCS = src/main.c
+SRCS = src/main.c src/utils.c src/rendering.c src/raycasting.c src/init.c
 # SRCSB =
 OBJS = $(SRCS:.c=.o)
 # OBJSB = $(SRCSB:.c=.o)
