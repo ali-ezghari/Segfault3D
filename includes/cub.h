@@ -1,7 +1,7 @@
 #ifndef CUB_H
 #define CUB_H
 
-extern int map[11][15];
+extern int map[15][15];
 
 #include <string.h>
 #include "../minilibx-linux/mlx.h"
@@ -15,17 +15,16 @@ extern int map[11][15];
 
 #define PI 3.14159265359
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
 #define ESC_KEY 65307
 #define RIGHT_ARROW 65363
 #define LEFT_ARROW 65361
 #define UP_ARROW 65362
 #define DOWN_ARROW 65364
+#define W_KEY 119
+#define A_KEY 97
+#define S_KEY 115
+#define D_KEY 100
 
-// #define WIDTH 600
-// #define HEIGHT 600
-#define PLAYER_SIZE 15
 #define COLOR_RED 0xFF0000
 #define COLOR_GREEN 0x00FF00
 #define COLOR_BLUE 0x0000FF
@@ -33,7 +32,9 @@ extern int map[11][15];
 #define COLOR_BLACK 0x000000
 #define COLOR_GREY 0x808080
 
+#define FOV_ANGLE 60 * (PI / 180)
 #define SCALE_FACTOR 0.25
+
 typedef struct s_img
 {
     void *img_ptr;
@@ -75,7 +76,7 @@ typedef struct s_game
 {
     void *mlx_connection;
     void *win_window;
-    int *map;
+    int **map;
     int width;
     int height;
     int mapRows;
@@ -89,16 +90,22 @@ typedef struct s_game
 
 void my_mlx_pixel_put(t_game *data, int x, int y, int color);
 double normalizeAngle(double angle);
-void drawLine(t_game *game, int x0, int y0, int x1, int y1, int color);
+// void drawLine(t_game *game, int x0, int y0, int x1, int y1, int color);
 int hasWallAt(t_game *game, t_player *player, int x, int y);
 double distance_bet_points(double x0, double y0, double x1, double y1);
-void init_ray(t_ray *ray, double ray_angle);
+// void init_ray(t_ray *ray, double ray_angle);
 int handle_keypress(int keycode, t_game *game);
 int handle_keyrelease(int keycode, t_game *game);
 void draw(t_game *game);
 
-void castRay(t_game *game, t_player *player, t_ray *ray);
-void cast_all_rays(t_game *game, t_player *player);
+// void castRay(t_game *game, t_player *player, t_ray *ray);
+// void cast_all_rays(t_game *game, t_player *player);
+
+void raycasting(t_game *game, t_player *player);
+void draw_line(t_game *game, int x0, int y0, int x1, int y1, int color);
+void init_ray(t_ray *ray, double ray_angle);
+
+void cleanup_and_exit(t_game *game, int exit_code);
 
 void draw(t_game *game);
 void draw_rec(t_game *game, int x, int y, int size, int color);
@@ -110,4 +117,6 @@ void init_player(t_game *game, t_player *player);
 void init_game(t_game *game);
 void init_mlx(t_game *game);
 
+
+// void cast_all_rays(t_game *game, t_player *player);
 #endif
