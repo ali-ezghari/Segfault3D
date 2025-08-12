@@ -1,6 +1,6 @@
 #include "../includes/cub.h"
 
-static void castRay(t_game *game, t_player *player, t_ray *ray) // ? DDA algorithm
+static void cast_ray(t_game *game, t_player *player, t_ray *ray) // ? DDA algorithm
 {
     double x_intercept, y_intercept;
     double step_x, step_y;
@@ -96,22 +96,20 @@ static void castRay(t_game *game, t_player *player, t_ray *ray) // ? DDA algorit
 
 void raycasting(t_game *game, t_player *player)
 {
-    double ray_angle = player->rotationAngle - (FOV_ANGLE / 2);
-    int num_rays = game->width;
+    double ray_angle;
+    int num_rays;
     int i;
 
+    num_rays = game->width;
+    ray_angle = player->rotationAngle - (FOV_ANGLE / 2);
     i = 0;
     game->rays = malloc(sizeof(t_ray) * num_rays);
     if (!game->rays)
-    {
-        printf("Error allocating memory for rays\n");
-        exit(EXIT_FAILURE);
-    }
+        cleanup_and_exit(game, EXIT_FAILURE);
     while (i < num_rays)
     {
         init_ray(&game->rays[i], normalizeAngle(ray_angle));
-        castRay(game, player, &game->rays[i]);
-        // draw_line(game, player->px * SCALE_FACTOR, player->py * SCALE_FACTOR, game->rays[i].wall_hit_x * SCALE_FACTOR, game->rays[i].wall_hit_y * SCALE_FACTOR, COLOR_RED);
+        cast_ray(game, player, &game->rays[i]);
         ray_angle += FOV_ANGLE / num_rays;
         i++;
     }

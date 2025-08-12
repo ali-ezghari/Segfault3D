@@ -18,7 +18,7 @@ void init_player(t_game *game, t_player *player)
 {
     player->px = game->width / 2;
     player->py = game->height / 2;
-    player->radius = 5;
+    player->radius = 6;
     player->moveSpeed = 2.00;
     player->rotationAngle = 0;
     player->turnDirection = 0;
@@ -38,6 +38,7 @@ void init_game(t_game *game)
 
     game->mlx_connection = NULL;
     game->win_window = NULL;
+    game->rays = NULL;
 }
 
 void cleanup_and_exit(t_game *game, int exit_code)
@@ -50,6 +51,8 @@ void cleanup_and_exit(t_game *game, int exit_code)
         mlx_destroy_display(game->mlx_connection);
     if (game->mlx_connection)
         free(game->mlx_connection);
+    if (game->rays)
+        free(game->rays);
     exit(exit_code);
 }
 

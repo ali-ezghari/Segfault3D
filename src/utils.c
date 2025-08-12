@@ -3,40 +3,26 @@
 int handle_keypress(int keycode, t_game *game)
 {
 	if (keycode == ESC_KEY)
-	{
 		cleanup_and_exit(game, 0);
-	}
-	else if (keycode == UP_ARROW)
-	{
+	else if (keycode == W_KEY)
 		game->player.walkDirection = 1;
-	}
-	else if (keycode == DOWN_ARROW)
-	{
+	else if (keycode == S_KEY)
 		game->player.walkDirection = -1;
-	}
 	else if (keycode == LEFT_ARROW)
-	{
 		game->player.turnDirection = -1;
-	}
 	else if (keycode == RIGHT_ARROW)
-	{
 		game->player.turnDirection = 1;
-	}
 	draw(game);
 	return (0);
 }
 int handle_keyrelease(int keycode, t_game *game)
 {
 	if (keycode == ESC_KEY)
-		return (0);
+		cleanup_and_exit(game, 0);
 	else if (keycode == UP_ARROW || keycode == DOWN_ARROW)
-	{
 		game->player.walkDirection = 0;
-	}
 	else if (keycode == LEFT_ARROW || keycode == RIGHT_ARROW)
-	{
 		game->player.turnDirection = 0;
-	}
 	return 0;
 }
 

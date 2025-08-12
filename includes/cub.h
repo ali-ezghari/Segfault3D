@@ -33,7 +33,7 @@ extern int map[15][15];
 #define COLOR_GREY 0x808080
 
 #define FOV_ANGLE 60 * (PI / 180)
-#define SCALE_FACTOR 0.25
+#define SCALE_FACTOR 0.2
 
 typedef struct s_img
 {

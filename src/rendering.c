@@ -1,21 +1,39 @@
 #include "../includes/cub.h"
 
+void render_rays(t_game *game, t_player *player)
+{
+    int i;
+    t_ray ray;
+
+    i = 0;
+    while (i < game->width)
+    {
+        ray = game->rays[i];
+        draw_line(game, player->px * SCALE_FACTOR, player->py * SCALE_FACTOR, game->rays[i].wall_hit_x * SCALE_FACTOR, game->rays[i].wall_hit_y * SCALE_FACTOR, COLOR_RED);
+        i++;
+    }
+}
+
 void update(t_game *game, t_player *player)
 {
+    double new_player_x;
+    double new_player_y;
+    double move_step;
+
     //? rotating the player based on keypress right(2px to the right) left(2px to the left)
     player->rotationAngle += player->turnDirection * player->rotationSpeed;
 
     // ? move the player forward or backwards based on the walkDirection
-    double moveStep = player->walkDirection * player->moveSpeed;
+    move_step = player->walkDirection * player->moveSpeed;
 
-    double newPlayerX = player->px + cos(player->rotationAngle) * moveStep;
-    double newPlayerY = player->py + sin(player->rotationAngle) * moveStep;
+    new_player_x = player->px + cos(player->rotationAngle) * move_step;
+    new_player_y = player->py + sin(player->rotationAngle) * move_step;
 
     //? prevent the player from going through walls
-    if (!hasWallAt(game, player, newPlayerX, newPlayerY))
+    if (!hasWallAt(game, player, new_player_x, new_player_y))
     {
-        player->px = newPlayerX;
-        player->py = newPlayerY;
+        player->px = new_player_x;
+        player->py = new_player_y;
     }
 }
 
@@ -110,18 +128,20 @@ void render_3d_walls(t_game *game)
     double proj_wall_height;
     double wall_height;
     int y_start;
+    double corrected_distance;
 
     fov = 60.0 * (PI / 180);
     for (int i = 0; i < game->width; i++) // game->width => Num of rays
     {
-        double correct_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotationAngle);
+        corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotationAngle);
 
         distance_to_pl = (game->width / 2) / tan(fov / 2);
-        proj_wall_height = (game->tile_size / correct_distance) * distance_to_pl;
+        proj_wall_height = (game->tile_size / corrected_distance) * distance_to_pl;
 
         wall_height = (int)proj_wall_height;
-
+        
         y_start = (game->height / 2) - (proj_wall_height / 2);
+        
         if (y_start < 0)
             y_start = 0;
         wall_height = ((wall_height + y_start) > game->height) ? game->height - y_start : wall_height;
@@ -131,19 +151,14 @@ void render_3d_walls(t_game *game)
     }
 }
 
-void draw(t_game *game)
+void render_2d_map(t_game *game)
 {
     int x;
     int y;
     int tile_color;
     int tile_x, tile_y;
-
+    
     x = 0;
-    ft_clear(&game->img, game->width, game->height, COLOR_GREY);
-    update(game, &game->player);
-    raycasting(game, &game->player);
-
-    render_3d_walls(game);
     while (x < game->mapRows)
     {
         y = 0;
@@ -160,7 +175,16 @@ void draw(t_game *game)
         }
         x++;
     }
+}
 
+void draw(t_game *game)
+{
+    ft_clear(&game->img, game->width, game->height, COLOR_GREY);
+    update(game, &game->player);
+    raycasting(game, &game->player);
+    render_3d_walls(game);
+    render_2d_map(game);
+    render_rays(game, &game->player);
     draw_player(game, &game->player, COLOR_RED);
     mlx_put_image_to_window(game->mlx_connection, game->win_window, game->img.img_ptr, 0, 0);
 }
