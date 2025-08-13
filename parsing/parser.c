@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 16:51:17 by mohalaou          #+#    #+#             */
+/*   Updated: 2025/08/13 14:31:42 by mohalaou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "parser.h"
 
 static char	*skip_empty_lines(int fd, char *line)
@@ -10,42 +22,51 @@ static char	*skip_empty_lines(int fd, char *line)
 	return (line);
 }
 
-int    init_data(int fd, t_map_info *data, int total_map_lines)
-{
-    char            *line;
-    char            *tmp;
-    t_argv_check    argvs[6] = {
-        {"NO", 0}, {"SO", 0}, {"WE", 0},
-        {"EA", 0}, {"F", 0}, {"C", 0}
-    };
-    int                status;
+// void inti_argvs(t_argv_check *argvs)
+// {
 
-    line = get_next_line(fd);
-    while (!is_all_checked(argvs) && line)
-    {
-        tmp = line;
-        while (ft_isspace(*line))
-            line++;
-        status = parse_line(line, argvs, data);
-        if (status == 1)
-            return (free(tmp), 1);
-        if (status == 2)
-        {
-            free(tmp);
-            line = get_next_line(fd);
-            continue ;
-        }
-        free(tmp);
-        line = get_next_line(fd);
-    }
-    if (!line)
-        exit_error(2, "Invalid file: file is empty.\n", data);
-    if (!(ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line)))
-        return (free(line), 1);
-    free(line);
-    line = skip_empty_lines(fd, get_next_line(fd));
-    read_map(fd, data, total_map_lines, line);
-    return (0);
+// }
+
+int	init_data(int fd, t_map_info *data, int total_map_lines)
+{
+	char	*line;
+	char	*tmp;
+	int		status;
+	t_argv_check argvs[6] = {
+    	{ "NO", 0 },
+    	{ "SO", 0 },
+    	{ "WE", 0 },
+    	{ "EA", 0 },
+    	{ "F",  0 },
+    	{ "C",  0 }
+	};
+
+	line = get_next_line(fd);
+	while (!is_all_checked(argvs) && line)
+	{
+		tmp = line;
+		while (ft_isspace(*line))
+			line++;
+		status = parse_line(line, argvs, data);
+		if (status == 1)
+			return (free(tmp), 1);
+		if (status == 2)
+		{
+			free(tmp);
+			line = get_next_line(fd);
+			continue ;
+		}
+		free(tmp);
+		line = get_next_line(fd);
+	}
+	if (!line)
+		exit_error(2, "Invalid file: file is empty.\n", data);
+	if (!(ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line)))
+		return (free(line), 1);
+	free(line);
+	line = skip_empty_lines(fd, get_next_line(fd));
+	read_map(fd, data, total_map_lines, line);
+	return (0);
 }
 
 int	parser(int argc, char *file, t_map_info *data)
@@ -74,38 +95,35 @@ int	parser(int argc, char *file, t_map_info *data)
 	return (0);
 }
 
-int main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
-    t_map_info *data;
-    data = malloc(sizeof(t_map_info));
-    if (!data)
-        return (1);
-    ft_memset(data, 0, sizeof(t_map_info));
-    
-    parser(argc, argv[1], data);
-    
-    // /* print after init the value  */
+	t_map_info	*data;
+	data = malloc(sizeof(t_map_info));
+	if (!data)
+		return (1);
+	ft_memset(data, 0, sizeof(t_map_info));
+	parser(argc, argv[1], data);
+
+	    // /* print after init the value  */
     printf("\n================ map ================\n");
     for (int i = 0; data->map[i] != NULL; i++)
         printf("---> %s\n", data->map[i]);
-
     printf("\n=============== COLOR ===============\n");
-    printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0], data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
-    printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0], data->color.floor.RGB[1], data->color.floor.RGB[2]);
+    printf("ceil  : R [%d], G [%d], B[%d]\n", data->color.ceil.RGB[0],
+            data->color.ceil.RGB[1], data->color.ceil.RGB[2]);
+    printf("floor : R [%d], G [%d], B[%d]\n", data->color.floor.RGB[0],
+            data->color.floor.RGB[1], data->color.floor.RGB[2]);
     printf("number of ceil color : [%d]\n", data->color.ceil.num_color);
     printf("number of ceil color : [%d]\n", data->color.floor.num_color);
-
     printf("\n===============  dir  ===============\n");
     printf("NO : [%s]\n", data->dir.NO);
     printf("WE : [%s]\n", data->dir.WE);
     printf("SO : [%s]\n", data->dir.SO);
     printf("EA : [%s]\n\n", data->dir.EA);
-
     printf("Start dir   : [%c]\n", data->s_dir.dir);
     printf("Start dir x : [%d]\n", data->s_dir.x + 1);
     printf("Start dir y : [%d]\n", data->s_dir.y + 1);
-
     printf("=====================================\n");
-    free_str_array(data->map);
-    free(data);
+
+	exit_error(0, NULL, data);
 }

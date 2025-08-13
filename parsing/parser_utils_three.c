@@ -1,15 +1,31 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils_three.c                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/12 16:50:39 by mohalaou          #+#    #+#             */
+/*   Updated: 2025/08/13 11:08:51 by mohalaou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "parser.h"
 
-void exit_error(int stauts, char *message, t_map_info *data)
+void	exit_error(int stauts, char *message, t_map_info *data)
 {
-    if (data->map)
-        free_str_array(data->map);
-    if (data)
-        free(data);
-    if (stauts == 2)
-        write (2, "Error: ", 7);
-    write(stauts, message, ft_strlen(message));
-    exit(stauts);
+	if (data->v)
+		free(data->v);
+	if (data->map)
+		free_str_array(data->map);
+	if (data)
+		free(data);
+	if (stauts != 0)
+	{
+		write(stauts, "Error: ", 7);
+		write(stauts, message, ft_strlen(message));
+	}
+	exit(stauts);
 }
 
 void	read_map(int fd, t_map_info *data, int total_map_lines, char *line)
@@ -37,12 +53,12 @@ void	read_map(int fd, t_map_info *data, int total_map_lines, char *line)
 	free(line);
 }
 
-int is_valid_name_file(char *argv)
+int	is_valid_name_file(char *argv)
 {
-    int len;
+	int	len;
 
-    len = ft_strlen(argv);
-    if (ft_strnstr(argv + (len - 4), ".cub", 4))
-        return (1);
-    return (0);
+	len = ft_strlen(argv);
+	if (ft_strnstr(argv + (len - 4), ".cub", 4))
+		return (1);
+	return (0);
 }
