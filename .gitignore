@@ -6,3 +6,5 @@
 .tmp
 .swp
 a.out
+parser
+cub3d

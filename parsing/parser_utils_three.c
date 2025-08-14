@@ -18,6 +18,14 @@ void	exit_error(int stauts, char *message, t_map_info *data)
 		free(data->v);
 	if (data->map)
 		free_str_array(data->map);
+	if (data->dir.EA)
+		free(data->dir.EA);
+	if (data->dir.NO)
+		free(data->dir.NO);
+	if (data->dir.SO)
+		free(data->dir.SO);
+	if (data->dir.WE)
+		free(data->dir.WE);
 	if (data)
 		free(data);
 	if (stauts != 0)

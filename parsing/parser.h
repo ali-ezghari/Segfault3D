@@ -41,10 +41,10 @@ typedef struct s_day_check
 
 typedef struct g_directions
 {
-	char			NO[PATH_MAX];
-	char			SO[PATH_MAX];
-	char			WE[PATH_MAX];
-	char			EA[PATH_MAX];
+	char			*NO;
+	char			*SO;
+	char			*WE;
+	char			*EA;
 }					t_directions;
 
 typedef struct g_color_data
