@@ -30,14 +30,14 @@ void update(t_game *game, t_player *player)
     new_player_y = player->py + sin(player->rotationAngle) * move_step;
 
     //? prevent the player from going through walls
-    if (!hasWallAt(game, player, new_player_x, new_player_y))
+    if (!has_wall_at(game, new_player_x, new_player_y))
     {
         player->px = new_player_x;
         player->py = new_player_y;
     }
 }
 
-static void ft_clear(t_img *img, int width, int height, int color)
+static void ft_clear(t_img *img, int width, int height)
 {
     int total_pixels;
     int i;
@@ -181,7 +181,7 @@ void render_2d_map(t_game *game)
 
 void draw(t_game *game)
 {
-    ft_clear(&game->img, game->width, game->height, COLOR_GREY);
+    ft_clear(&game->img, game->width, game->height);
     update(game, &game->player);
     raycasting(game, &game->player);
     render_3d_walls(game);

@@ -67,7 +67,7 @@ double distance_bet_points(double x1, double y1, double x2, double y2)
 	return (sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2)));
 }
 
-int hasWallAt(t_game *game, t_player *player, int x, int y)
+int has_wall_at(t_game *game, int x, int y)
 {
 	if (x < 0 || y < 0 || y > game->height || x > game->width)
 		return true;

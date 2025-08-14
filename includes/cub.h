@@ -18,8 +18,6 @@ extern int map[15][15];
 #define ESC_KEY 65307
 #define RIGHT_ARROW 65363
 #define LEFT_ARROW 65361
-#define UP_ARROW 65362
-#define DOWN_ARROW 65364
 #define W_KEY 119
 #define A_KEY 97
 #define S_KEY 115
@@ -34,6 +32,26 @@ extern int map[15][15];
 
 #define FOV_ANGLE 60 * (PI / 180)
 #define SCALE_FACTOR 0.2
+
+typedef struct s_horz {
+    double x_intercept;
+    double y_intercept;
+    double step_x;
+    double step_y;
+    double next_x;
+    double next_y;
+    bool found;
+} t_horz;
+
+typedef struct s_vert {
+    double x_intercept;
+    double y_intercept;
+    double step_x;
+    double step_y;
+    double next_x;
+    double next_y;
+    bool found;
+} t_vert;
 
 typedef struct s_img
 {
@@ -90,7 +108,7 @@ typedef struct s_game
 
 void my_mlx_pixel_put(t_game *data, int x, int y, int color);
 double normalizeAngle(double angle);
-int hasWallAt(t_game *game, t_player *player, int x, int y);
+int has_wall_at(t_game *game, int x, int y);
 double distance_bet_points(double x0, double y0, double x1, double y1);
 int handle_keypress(int keycode, t_game *game);
 int handle_keyrelease(int keycode, t_game *game);

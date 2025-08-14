@@ -1,102 +1,110 @@
 #include "../includes/cub.h"
 
-
-static void cast_ray(t_game *game, t_player *player, t_ray *ray) // ? DDA algorithm
+static void init_horz_ray(t_game *game, t_player *player, t_ray *ray, t_horz *h)
 {
-    double x_intercept, y_intercept;
-    double step_x, step_y;
-
-    double horz_wall_hit_x, horz_wall_hit_y;
-    int found_horz_wall_hit = false;
-
-    y_intercept = floor(player->py / game->tile_size) * game->tile_size;
+    h->y_intercept = floor(player->py / game->tile_size) * game->tile_size;
     if (ray->is_ray_facing_down)
-        y_intercept += game->tile_size;
-
-    x_intercept = player->px + (y_intercept - player->py) / tan(ray->ray_angle);
-
-    step_y = game->tile_size;
+        h->y_intercept += game->tile_size;
+    h->x_intercept = player->px + (h->y_intercept - player->py) / tan(ray->ray_angle);
+    h->step_y = game->tile_size;
     if (ray->is_ray_facing_up)
-        step_y *= -1;
+        h->step_y *= -1;
+    h->step_x = game->tile_size / tan(ray->ray_angle);
+    if (ray->is_ray_facing_left && h->step_x > 0)
+        h->step_x *= -1;
+    if (ray->is_ray_facing_right && h->step_x < 0)
+        h->step_x *= -1;
+}
 
-    step_x = game->tile_size / tan(ray->ray_angle);
-    if (ray->is_ray_facing_left && step_x > 0)
-        step_x *= -1;
-    
-    if (ray->is_ray_facing_right && step_x < 0)
-        step_x *= -1;
-    
-
-    double next_horz_x = x_intercept;
-    double next_horz_y = y_intercept;
-
-    while (next_horz_x >= 0 && next_horz_x <= game->width && next_horz_y >= 0 && next_horz_y <= game->height)
+static bool find_horz_wall_hit(t_game *game,
+                               t_ray *ray, t_horz *h)
+{
+    h->next_x = h->x_intercept;
+    h->next_y = h->y_intercept;
+    while (h->next_x >= 0 && h->next_x <= game->width && h->next_y >= 0 && h->next_y <= game->height)
     {
-        if (hasWallAt(game, player, next_horz_x, next_horz_y - ray->is_ray_facing_up))
+        if (has_wall_at(game, h->next_x, h->next_y - ray->is_ray_facing_up))
         {
-            found_horz_wall_hit = true;
-            horz_wall_hit_x = next_horz_x;
-            horz_wall_hit_y = next_horz_y;
-            break;
+            h->found = true;
+            return (true);
         }
-        else
-        {
-            next_horz_x += step_x;
-            next_horz_y += step_y;
-        }
+        h->next_x += h->step_x;
+        h->next_y += h->step_y;
     }
+    return (false);
+}
 
-    double vert_wall_hit_x, vert_wall_hit_y;
-    int found_vert_wall_hit = false;
-
-    x_intercept = floor(player->px / game->tile_size) * game->tile_size;
+static void init_vert_ray(t_game *game, t_player *player, t_ray *ray, t_vert *v)
+{
+    v->x_intercept = floor(player->px / game->tile_size) * game->tile_size;
     if (ray->is_ray_facing_right)
-        x_intercept += game->tile_size;
+        v->x_intercept += game->tile_size;
+    v->y_intercept = player->py + (v->x_intercept - player->px) * tan(ray->ray_angle);
+    v->step_x = game->tile_size;
+    v->step_x *= ray->is_ray_facing_left ? -1 : 1;
+    v->step_y = game->tile_size * tan(ray->ray_angle);
+    v->step_y *= (ray->is_ray_facing_up && v->step_y > 0) ? -1 : 1;
+    v->step_y *= (ray->is_ray_facing_down && v->step_y < 0) ? -1 : 1;
+}
 
-    y_intercept = player->py + (x_intercept - player->px) * tan(ray->ray_angle);
-
-    step_x = game->tile_size;
-    step_x *= ray->is_ray_facing_left ? -1 : 1;
-
-    step_y = game->tile_size * tan(ray->ray_angle);
-    step_y *= (ray->is_ray_facing_up && step_y > 0) ? -1 : 1;
-    step_y *= (ray->is_ray_facing_down && step_y < 0) ? -1 : 1;
-
-    double next_vert_x = x_intercept;
-    double next_vert_y = y_intercept;
-
-    while (next_vert_x >= 0 && next_vert_x <= game->width && next_vert_y >= 0 && next_vert_y <= game->height)
+static bool find_vert_wall_hit(t_game *game,
+                               t_ray *ray, t_vert *v)
+{
+    v->next_x = v->x_intercept;
+    v->next_y = v->y_intercept;
+    while (v->next_x >= 0 && v->next_x <= game->width && v->next_y >= 0 && v->next_y <= game->height)
     {
-        if (hasWallAt(game, player, next_vert_x - ray->is_ray_facing_left, next_vert_y))
+        if (has_wall_at(game, v->next_x - ray->is_ray_facing_left, v->next_y))
         {
-            found_vert_wall_hit = true;
-            vert_wall_hit_x = next_vert_x;
-            vert_wall_hit_y = next_vert_y;
-            break;
+            v->found = true;
+            return (true);
         }
-        else
-        {
-            next_vert_x += step_x;
-            next_vert_y += step_y;
-        }
+        v->next_x += v->step_x;
+        v->next_y += v->step_y;
     }
-    double horz_hit_distance = (found_horz_wall_hit) ? distance_bet_points(player->px, player->py, horz_wall_hit_x, horz_wall_hit_y) : INT_MAX;
-    double vert_hit_distance = (found_vert_wall_hit) ? distance_bet_points(player->px, player->py, vert_wall_hit_x, vert_wall_hit_y) : INT_MAX;
+    return (false);
+}
 
-    if (horz_hit_distance < vert_hit_distance)
+static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
+{
+    double horz_dist;
+    double vert_dist;
+
+    if (h->found)
+        horz_dist = distance_bet_points(player->px, player->py, h->next_x, h->next_y);
+    else
+        horz_dist = INT_MAX;
+
+    if (v->found)
+        vert_dist = distance_bet_points(player->px, player->py, v->next_x, v->next_y);
+    else
+        vert_dist = INT_MAX;
+    if (horz_dist < vert_dist)
     {
-        ray->wall_hit_x = horz_wall_hit_x;
-        ray->wall_hit_y = horz_wall_hit_y;
-        ray->distance = horz_hit_distance;
+        ray->wall_hit_x = h->next_x;
+        ray->wall_hit_y = h->next_y;
+        ray->distance = horz_dist;
         ray->was_hit_vertical = false;
     }
     else
     {
-        ray->wall_hit_x = vert_wall_hit_x;
-        ray->wall_hit_y = vert_wall_hit_y;
-        ray->distance = vert_hit_distance;
+        ray->wall_hit_x = v->next_x;
+        ray->wall_hit_y = v->next_y;
+        ray->distance = vert_dist;
         ray->was_hit_vertical = true;
     }
+}
+
+static void cast_ray(t_game *game, t_player *player, t_ray *ray)
+{
+    t_horz h = {0};
+    t_vert v = {0};
+
+    init_horz_ray(game, player, ray, &h);
+    h.found = find_horz_wall_hit(game, ray, &h);
+    init_vert_ray(game, player, ray, &v);
+    v.found = find_vert_wall_hit(game, ray, &v);
+    set_ray_result(ray, &h, &v, player);
 }
 
 void raycasting(t_game *game, t_player *player)
