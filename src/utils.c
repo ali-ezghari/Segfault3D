@@ -19,7 +19,7 @@ int handle_keyrelease(int keycode, t_game *game)
 {
 	if (keycode == ESC_KEY)
 		cleanup_and_exit(game, 0);
-	else if (keycode == UP_ARROW || keycode == DOWN_ARROW)
+	else if (keycode == W_KEY || keycode == S_KEY)
 		game->player.walkDirection = 0;
 	else if (keycode == LEFT_ARROW || keycode == RIGHT_ARROW)
 		game->player.turnDirection = 0;
@@ -50,7 +50,7 @@ void draw_line(t_game *game, int x0, int y0, int x1, int y1, int color)
 			y0 += sy;
 		}
 	}
-	my_mlx_pixel_put(game, x1, y1, color); 
+	my_mlx_pixel_put(game, x1, y1, color);
 }
 double normalizeAngle(double angle)
 {
@@ -75,7 +75,7 @@ int hasWallAt(t_game *game, t_player *player, int x, int y)
 	int map_x = floor(x / game->tile_size);
 	int map_y = floor(y / game->tile_size);
 
-	return (map[map_y][map_x] != 0);
+	return (game->map[map_y][map_x] != '0');
 }
 
 void my_mlx_pixel_put(t_game *data, int x, int y, int color)

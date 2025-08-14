@@ -47,8 +47,10 @@ static void ft_clear(t_img *img, int width, int height, int color)
     total_pixels = width * height;
 
     i = 0;
+    while (i < total_pixels / 2)
+        pixels[i++] = COLOR_GREEN;
     while (i < total_pixels)
-        pixels[i++] = color;
+        pixels[i++] = COLOR_GREY;
 }
 
 void draw_rec(t_game *game, int x, int y, int size, int color)
@@ -139,9 +141,9 @@ void render_3d_walls(t_game *game)
         proj_wall_height = (game->tile_size / corrected_distance) * distance_to_pl;
 
         wall_height = (int)proj_wall_height;
-        
+
         y_start = (game->height / 2) - (proj_wall_height / 2);
-        
+
         if (y_start < 0)
             y_start = 0;
         wall_height = ((wall_height + y_start) > game->height) ? game->height - y_start : wall_height;
@@ -157,7 +159,7 @@ void render_2d_map(t_game *game)
     int y;
     int tile_color;
     int tile_x, tile_y;
-    
+
     x = 0;
     while (x < game->mapRows)
     {
@@ -166,7 +168,7 @@ void render_2d_map(t_game *game)
         {
             tile_x = y * game->tile_size;
             tile_y = x * game->tile_size;
-            if (map[x][y] == 1)
+            if (game->map[x][y] == '1')
                 tile_color = COLOR_WHITE;
             else
                 tile_color = COLOR_BLACK;

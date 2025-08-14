@@ -1,5 +1,31 @@
 #include "../includes/cub.h"
 
+void get_map(t_game *game)
+{
+    static char *map[20] = {
+        "11111111111111111111",
+        "10000000000000000001",
+        "10111101111101111001",
+        "10000100000100001001",
+        "10110101110101101001",
+        "10010100000100001001",
+        "10110101111101101001",
+        "10000100010000001001",
+        "10111101011111011001",
+        "10000001000000001001",
+        "10111000000001111001",
+        "10001000000100000001",
+        "10101111110111111001",
+        "10000000000100000001",
+        "10111111110111111001",
+        "10000000000000000001",
+        "10111101111101111001",
+        "10000000000000000001",
+        "10000000000000000001",
+        "11111111111111111111"};
+    game->map = map;
+}
+
 void init_ray(t_ray *ray, double ray_angle)
 {
     ray->ray_angle = ray_angle;
@@ -19,7 +45,7 @@ void init_player(t_game *game, t_player *player)
     player->px = game->width / 2;
     player->py = game->height / 2;
     player->radius = 6;
-    player->moveSpeed = 2.00;
+    player->moveSpeed = 5.00;
     player->rotationAngle = 0;
     player->turnDirection = 0;
     player->walkDirection = 0;
@@ -30,11 +56,13 @@ void init_player(t_game *game, t_player *player)
 
 void init_game(t_game *game)
 {
-    game->mapRows = 15;
-    game->mapCols = 15;
+    game->mapRows = 20;
+    game->mapCols = 20;
     game->tile_size = 64;
     game->width = game->tile_size * game->mapCols;
     game->height = game->tile_size * game->mapRows;
+
+    get_map(game);
 
     game->mlx_connection = NULL;
     game->win_window = NULL;

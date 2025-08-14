@@ -76,7 +76,7 @@ typedef struct s_game
 {
     void *mlx_connection;
     void *win_window;
-    int **map;
+    char **map;
     int width;
     int height;
     int mapRows;
@@ -90,16 +90,12 @@ typedef struct s_game
 
 void my_mlx_pixel_put(t_game *data, int x, int y, int color);
 double normalizeAngle(double angle);
-// void drawLine(t_game *game, int x0, int y0, int x1, int y1, int color);
 int hasWallAt(t_game *game, t_player *player, int x, int y);
 double distance_bet_points(double x0, double y0, double x1, double y1);
-// void init_ray(t_ray *ray, double ray_angle);
 int handle_keypress(int keycode, t_game *game);
 int handle_keyrelease(int keycode, t_game *game);
 void draw(t_game *game);
 
-// void castRay(t_game *game, t_player *player, t_ray *ray);
-// void cast_all_rays(t_game *game, t_player *player);
 
 void raycasting(t_game *game, t_player *player);
 void draw_line(t_game *game, int x0, int y0, int x1, int y1, int color);
@@ -118,5 +114,4 @@ void init_game(t_game *game);
 void init_mlx(t_game *game);
 
 
-// void cast_all_rays(t_game *game, t_player *player);
 #endif
