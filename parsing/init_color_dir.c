@@ -6,14 +6,14 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:49:10 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/13 10:28:06 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/14 16:06:39 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 #include <stdio.h>
 
-void	init_directions(char *line, char *dir, t_map_info *data)
+void	init_directions(char *line, char *dir, t_info *data)
 {
 	int		fd;
 	char	*tmp;
@@ -51,7 +51,7 @@ int	skip_prefix(char *line)
 	return (i);
 }
 
-void	validate_and_set_rgb(char **rgb, t_color_data *color, t_map_info *data)
+void	validate_and_set_rgb(char **rgb, t_color_data *color, t_info *data)
 {
 	int	i;
 
@@ -60,15 +60,15 @@ void	validate_and_set_rgb(char **rgb, t_color_data *color, t_map_info *data)
 	{
 		if (!ft_is_all_digits(rgb[i]))
 			exit_error(2, "Invalid color input: must be digits only.\n", data);
-		color->RGB[i] = ft_atoi(rgb[i]);
-		if (color->RGB[i] < 0 || color->RGB[i] > 255)
+		color->_rgb[i] = ft_atoi(rgb[i]);
+		if (color->_rgb[i] < 0 || color->_rgb[i] > 255)
 			exit_error(2, "Invalid color number: must be between 0 and 255.\n",
 				data);
 		i++;
 	}
 }
 
-void	init_color(char *line, t_color_data *color, t_map_info *data)
+void	init_color(char *line, t_color_data *color, t_info *data)
 {
 	int		i;
 	char	**rgb;
@@ -80,25 +80,25 @@ void	init_color(char *line, t_color_data *color, t_map_info *data)
 	if (!rgb)
 		exit_error(2, "Memory allocation error\n", data);
 	validate_and_set_rgb(rgb, color, data);
-	color->num_color = (color->RGB[0] << 16)
-		| (color->RGB[1] << 8)
-		| color->RGB[2];
+	color->num_color = (color->_rgb[0] << 16)
+		| (color->_rgb[1] << 8)
+		| color->_rgb[2];
 	free_str_array(rgb);
 }
 
-int	parse_line(char *line, t_argv_check *argvs, t_map_info *data)
+int	parse_line(char *line, t_argv_check *argvs, t_info *data)
 {
 	if (ft_strncmp(line, "NO ", 3) == 0)
-		return (argvs[0].checked = 1, init_directions(line, data->dir.NO, data),
+		return (argvs[0].checked = 1, init_directions(line, data->dir.no, data),
 			0);
 	if (ft_strncmp(line, "SO ", 3) == 0)
-		return (argvs[1].checked = 1, init_directions(line, data->dir.SO, data),
+		return (argvs[1].checked = 1, init_directions(line, data->dir.so, data),
 			0);
 	if (ft_strncmp(line, "WE ", 3) == 0)
-		return (argvs[2].checked = 1, init_directions(line, data->dir.WE, data),
+		return (argvs[2].checked = 1, init_directions(line, data->dir.we, data),
 			0);
 	if (ft_strncmp(line, "EA ", 3) == 0)
-		return (argvs[3].checked = 1, init_directions(line, data->dir.EA, data),
+		return (argvs[3].checked = 1, init_directions(line, data->dir.ea, data),
 			0);
 	if (ft_strncmp(line, "F ", 2) == 0)
 		return (argvs[4].checked = 1, init_color(line, &data->color.floor,

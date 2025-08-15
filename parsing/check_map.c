@@ -6,19 +6,19 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:47:20 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/13 11:15:41 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/14 15:39:58 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 
-void	validate_border(char *line, t_map_info *data)
+void	validate_border(char *line, t_info *data)
 {
 	if (!ft_notmemchar(line, '1', 1))
 		exit_error(2, "First and last lines must contain only '1'.\n", data);
 }
 
-void	validate_char(char c, int *dir_set, t_map_info *data)
+void	validate_char(char c, int *dir_set, t_info *data)
 {
 	if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
 	{
@@ -58,7 +58,7 @@ int	find_position(char **map, char target, int *x, int *y)
 	return (0);
 }
 
-void	flood_fill(t_map_info *data, char **map, char target, int x, int y)
+void	flood_fill(t_info *data, char **map, char target, int x, int y)
 {
 	if (map[x][y] == '\0' || map[x][y] == ' ')
 		exit_error(2, "Invalid map: map must be surrounded by walls.\n", data);
@@ -72,7 +72,7 @@ void	flood_fill(t_map_info *data, char **map, char target, int x, int y)
 	}
 }
 
-void	check_if_map_valid(char **map, int len, t_map_info *data)
+void	check_if_map_valid(char **map, int len, t_info *data)
 {
 	data->v = malloc(sizeof(t_help_varible));
 	if (!data->v)

@@ -6,7 +6,7 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:50:50 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/12 16:50:51 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/15 16:23:08 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,22 +24,33 @@ int	is_map_line(char *line)
 	return (1);
 }
 
-int	count_map_lines(int fd)
+int	count_map_lines(int fd, t_info *data)
 {
+	size_t	max_widht;
 	int		count;
 	char	*line;
 
 	count = 0;
+	max_widht = 0;
 	line = get_next_line(fd);
-	while (line)
+	while (line && !is_map_line(line))
 	{
-		if (is_map_line(line))
-			count++;
 		free(line);
 		line = get_next_line(fd);
 	}
-	close(fd);
-	return (count);
+	while (line)
+	{
+		count++;
+		if (ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line))
+			exit_error(2, "Invalid map, map shuld be the last think\n", data);
+		if (ft_strlen(line) > max_widht)
+			max_widht = ft_strlen(line);
+		free(line);
+		line = get_next_line(fd);
+	}
+	data->map_width = max_widht;
+	data->map_lenght = count;
+	return (close(fd), count);
 }
 
 int	ft_notmemchar(const char *str, char c, int count_sp)

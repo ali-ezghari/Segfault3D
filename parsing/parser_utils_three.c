@@ -6,53 +6,47 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:50:39 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/13 11:08:51 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/15 16:25:45 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
 
-void	exit_error(int stauts, char *message, t_map_info *data)
+void	exit_error(int stauts, char *message, t_info *data)
 {
 	if (data->v)
 		free(data->v);
 	if (data->map)
 		free_str_array(data->map);
-	if (data->dir.EA)
-		free(data->dir.EA);
-	if (data->dir.NO)
-		free(data->dir.NO);
-	if (data->dir.SO)
-		free(data->dir.SO);
-	if (data->dir.WE)
-		free(data->dir.WE);
 	if (data)
 		free(data);
 	if (stauts != 0)
 	{
-		write(stauts, "Error: ", 7);
+		write(stauts, "Error: \n", 8);
 		write(stauts, message, ft_strlen(message));
 	}
 	exit(stauts);
 }
 
-void	read_map(int fd, t_map_info *data, int total_map_lines, char *line)
+void	read_map(int fd, t_info *data, int total_map_lines, char *line)
 {
-	int	i;
-	int	len;
-
+	int (i), (k), (width);
 	data->map = malloc(sizeof(char *) * (total_map_lines + 1));
 	if (!data->map)
 		return ;
 	i = 0;
+	width = data->map_width;
 	while (line && (ft_strncmp(line, "\n", 1) != 0 || !ft_is_all_spaces(line)))
 	{
-		data->map[i] = ft_strdup(line);
+		k = -1;
+		data->map[i] = malloc((width + 1) * sizeof(char));
 		if (!data->map[i])
 			break ;
-		len = ft_strlen(data->map[i]);
-		if (len > 0 && data->map[i][len - 1] == '\n')
-			data->map[i][len - 1] = '\0';
+		while (line[++k] && line[k] != '\n' && k < width)
+			data->map[i][k] = line[k];
+		while (k < width)
+			data->map[i][k++] = ' ';
+		data->map[i][k] = '\0';
 		i++;
 		free(line);
 		line = get_next_line(fd);
@@ -69,4 +63,35 @@ int	is_valid_name_file(char *argv)
 	if (ft_strnstr(argv + (len - 4), ".cub", 4))
 		return (1);
 	return (0);
+}
+
+void	replace_char_in_array(char **arr, char tar, char rep)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	if (!arr || !(*arr))
+		return ;
+	while (arr[i])
+	{
+		j = 0;
+		while (arr[i][j])
+		{
+			if (arr[i][j] == tar)
+				arr[i][j] = rep;
+			j++;
+		}
+		i++;
+	}
+}
+
+char	*skip_empty_lines(int fd, char *line)
+{
+	while (line && (ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line)))
+	{
+		free(line);
+		line = get_next_line(fd);
+	}
+	return (line);
 }
