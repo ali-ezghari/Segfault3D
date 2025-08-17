@@ -5,23 +5,26 @@ GREEN_CHECK = \033[32m✅\033[0m
 
 CC = cc
 RM = rm -rf
-FLAGS = -Wall -Wextra -Werror
-SRCS = src/main.c src/utils.c src/rendering.c src/raycasting.c src/init.c
-		parsing/parser.c parsing/parser_utils.c get_next_line/get_next_line_bonus.c \
-		get_next_line/get_next_line_utils_bonus.c parsing/parser_utils_two.c \
-		parsing/check_map.c parsing/init_color_dir.c parsing/parser_utils_three.c
+FLAGS = #-Wall -Wextra -Werror
+SRCS = src/main.c src/utils.c src/rendering.c src/raycasting.c src/init.c \
+       parsing/parser.c parsing/parser_utils.c get_next_line/get_next_line_bonus.c \
+       get_next_line/get_next_line_utils_bonus.c parsing/parser_utils_two.c \
+       parsing/check_map.c parsing/init_color_dir.c parsing/parser_utils_three.c
 
 OBJS = $(SRCS:.c=.o)
 NAME = cub3d
 
 # libft varible
-LIBFT     = libft/libft.a 
+LIBFT = libft/libft.a 
 DIR_LIBFT = libft
+
+# Include paths
+INCLUDES = -Iincludes -Ilibft -Iget_next_line -Iparsing
 
 all: $(NAME)
 
 %.o: %.c
-	@$(CC) $(FLAGS) -O3 -c $< -o $@
+	@$(CC) $(FLAGS) $(INCLUDES) -O3 -c $< -o $@
 	@echo "$(GREEN)Compiled $< $(GREEN_CHECK)$(RESET)"
 
 $(NAME): $(OBJS) $(LIBFT)
@@ -33,7 +36,7 @@ $(LIBFT):
 	@echo "$(GREEN)Libft was created $(GREEN_CHECK)$(RESET)"
 
 clean:
-	@$(RM) $(OBJS) $(OBJSB)
+	@$(RM) $(OBJS)
 	@$(MAKE) clean -C $(DIR_LIBFT)
 	@echo "$(RED)Removing object files...$(RESET)"
 
@@ -44,5 +47,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re bonus
-.SECONDARY: $(OBJSB)
+.PHONY: all clean fclean re

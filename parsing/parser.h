@@ -78,6 +78,7 @@ typedef struct g_info
 }					t_info;
 
 /* parser_utils */
+int	parser(int argc, char *file, t_info *data);
 int					total_lines(char **arr);
 int					ft_isspace(unsigned char c);
 int					ft_is_all_spaces(const char *s);

@@ -2,6 +2,7 @@
 #define CUB_H
 
 #include <string.h>
+#include "../parsing/parser.h"
 #include "../minilibx-linux/mlx.h"
 #include <stdlib.h>
 #include <stdio.h>
