@@ -89,15 +89,3 @@ int	parser(int argc, char *file, t_info *data)
 	free_str_array(map_copy);
 	return (0);
 }
-
-int	main(int argc, char *argv[])
-{
-	t_info	*data;
-
-	data = malloc(sizeof(t_info));
-	if (!data)
-		return (1);
-	ft_memset(data, 0, sizeof(t_info));
-	parser(argc, argv[1], data);
-	exit_error(0, NULL, data);
-}
