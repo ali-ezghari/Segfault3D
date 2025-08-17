@@ -1,0 +1,10 @@
+*.o
+*/libft.a
+.so
+.DS_store
+.vscode/
+.tmp
+.swp
+a.out
+parser
+cub3d

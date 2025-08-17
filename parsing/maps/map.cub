@@ -1,0 +1,14 @@
+SO ./maps/path_to_the_south_texture
+   C  255,255,255
+   F     010, 43,2
+WE ./maps/path_to_the_south_texture
+  NO                                  ./maps/path_to_the_south_texture
+EA ./maps/path_to_the_south_texture
+
+1111111
+1000001
+1110001
+100111111
+100000001
+110000N001
+1111111111111111
