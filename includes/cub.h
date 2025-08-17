@@ -88,6 +88,8 @@ typedef struct s_player
     double rotationAngle; //
     double moveSpeed;     // pixels per player step
     double rotationSpeed; // how many degrees the player will rotates per key press(per frame) the player
+
+    int strafedirection; // 1 if going right, -1 if going left
 } t_player;
 
 typedef struct s_game

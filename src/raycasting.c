@@ -13,7 +13,7 @@ static void init_horz_ray(t_game *game, t_player *player, t_ray *ray, t_horz *h)
     if (ray->is_ray_facing_left && h->step_x > 0)
         h->step_x *= -1;
     if (ray->is_ray_facing_right && h->step_x < 0)
-        h->step_x *= -1;
+        h->step_x *= -1; 
 }
 
 static bool find_horz_wall_hit(t_game *game,
@@ -41,10 +41,13 @@ static void init_vert_ray(t_game *game, t_player *player, t_ray *ray, t_vert *v)
         v->x_intercept += game->tile_size;
     v->y_intercept = player->py + (v->x_intercept - player->px) * tan(ray->ray_angle);
     v->step_x = game->tile_size;
-    v->step_x *= ray->is_ray_facing_left ? -1 : 1;
+    if (ray->is_ray_facing_left)
+        v->step_x *= -1;
     v->step_y = game->tile_size * tan(ray->ray_angle);
-    v->step_y *= (ray->is_ray_facing_up && v->step_y > 0) ? -1 : 1;
-    v->step_y *= (ray->is_ray_facing_down && v->step_y < 0) ? -1 : 1;
+    if (ray->is_ray_facing_up && v->step_y > 0)
+        v->step_y *= -1;
+    if (ray->is_ray_facing_down && v->step_y < 0)
+        v->step_y *= -1;
 }
 
 static bool find_vert_wall_hit(t_game *game,
@@ -73,12 +76,12 @@ static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
     if (h->found)
         horz_dist = distance_bet_points(player->px, player->py, h->next_x, h->next_y);
     else
-        horz_dist = INT_MAX;
+        horz_dist = (double)INT_MAX;
 
     if (v->found)
         vert_dist = distance_bet_points(player->px, player->py, v->next_x, v->next_y);
     else
-        vert_dist = INT_MAX;
+        vert_dist = (double)INT_MAX;
     if (horz_dist < vert_dist)
     {
         ray->wall_hit_x = h->next_x;
@@ -97,9 +100,11 @@ static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
 
 static void cast_ray(t_game *game, t_player *player, t_ray *ray)
 {
-    t_horz h = {0};
-    t_vert v = {0};
+    t_horz h;
+    t_vert v;
 
+    memset(&h, 0, sizeof(t_horz));
+    memset(&v, 0, sizeof(t_vert));
     init_horz_ray(game, player, ray, &h);
     h.found = find_horz_wall_hit(game, ray, &h);
     init_vert_ray(game, player, ray, &v);

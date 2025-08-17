@@ -9,7 +9,7 @@ void render_rays(t_game *game, t_player *player)
     while (i < game->width)
     {
         ray = game->rays[i];
-        draw_line(game, player->px * SCALE_FACTOR, player->py * SCALE_FACTOR, game->rays[i].wall_hit_x * SCALE_FACTOR, game->rays[i].wall_hit_y * SCALE_FACTOR, COLOR_RED);
+        draw_line(game, player->px * SCALE_FACTOR, player->py * SCALE_FACTOR, ray.wall_hit_x * SCALE_FACTOR, ray.wall_hit_y * SCALE_FACTOR, COLOR_RED);
         i++;
     }
 }
@@ -30,7 +30,16 @@ void update(t_game *game, t_player *player)
     new_player_y = player->py + sin(player->rotationAngle) * move_step;
 
     //? prevent the player from going through walls
-    if (!has_wall_at(game, new_player_x, new_player_y))
+
+    if (player->strafedirection != 0)
+    {
+        new_player_x += cos(player->rotationAngle + (PI / 2)) * player->strafedirection * player->moveSpeed;
+        new_player_y += sin(player->rotationAngle + (PI / 2)) * player->strafedirection * player->moveSpeed;
+    }
+    if (!has_wall_at(game, new_player_x + 2, new_player_y + 2) &&
+        !has_wall_at(game, new_player_x - 2, new_player_y - 2) &&
+        !has_wall_at(game, new_player_x + 2, new_player_y - 2) &&
+        !has_wall_at(game, new_player_x - 2, new_player_y + 2))
     {
         player->px = new_player_x;
         player->py = new_player_y;
@@ -125,19 +134,19 @@ void rec(t_game *game, int x, int y, int width, int height, int color)
 
 void render_3d_walls(t_game *game)
 {
-    double fov;
     double distance_to_pl;
     double proj_wall_height;
     double wall_height;
     int y_start;
     double corrected_distance;
+    int i;
 
-    fov = 60.0 * (PI / 180);
-    for (int i = 0; i < game->width; i++) // game->width => Num of rays
+    i = 0;
+    while (i < game->width) // game->width => Num of rays
     {
         corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotationAngle);
 
-        distance_to_pl = (game->width / 2) / tan(fov / 2);
+        distance_to_pl = (game->width / 2) / tan(FOV_ANGLE / 2);
         proj_wall_height = (game->tile_size / corrected_distance) * distance_to_pl;
 
         wall_height = (int)proj_wall_height;
@@ -150,6 +159,7 @@ void render_3d_walls(t_game *game)
         if (wall_height <= 0)
             continue;
         rec(game, i, y_start, 1, wall_height, COLOR_WHITE);
+        i++;
     }
 }
 

@@ -4,7 +4,7 @@ void get_map(t_game *game)
 {
     char *map_data[] = {
         "11111111111111111111",
-        "10000000000000000001",
+        "1N000000000000000001",
         "10111101111101111001",
         "10000100000100001001",
         "10110101110101101001",
@@ -45,8 +45,8 @@ void init_ray(t_ray *ray, double ray_angle)
     ray->is_ray_facing_down = ray->ray_angle > 0 && ray->ray_angle < PI;
     ray->is_ray_facing_up = !ray->is_ray_facing_down;
     ray->is_ray_facing_right = ray->ray_angle < PI * 0.5 || ray->ray_angle > PI * 1.5;
-    ray->was_hit_vertical = false;
     ray->is_ray_facing_left = !ray->is_ray_facing_right;
+    ray->was_hit_vertical = false;
 }
 
 static void init_player_rotation(t_player *player, char spawn_dir)
@@ -67,6 +67,7 @@ void init_player(t_game *game, t_player *player)
     player->moveSpeed = 5.00;
     player->turnDirection = 0;
     player->walkDirection = 0;
+    player->strafedirection = 0;
 
     player->rotationSpeed = 4 * (PI / 180);
 
@@ -80,7 +81,7 @@ void init_game(t_game *game)
 {
     game->mapRows = 20;
     game->mapCols = 20;
-    game->tile_size = 64;
+    game->tile_size = 40;
     game->width = game->tile_size * game->mapCols;
     game->height = game->tile_size * game->mapRows;
 
