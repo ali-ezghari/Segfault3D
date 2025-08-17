@@ -1,8 +1,6 @@
 #ifndef CUB_H
 #define CUB_H
 
-extern int map[15][15];
-
 #include <string.h>
 #include "../minilibx-linux/mlx.h"
 #include <stdlib.h>
