@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
+#include "../includes/cub.h"
 
 int	is_map_line(char *line)
 {

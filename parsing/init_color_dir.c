@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
-#include <stdio.h>
+#include "../includes/cub.h"
 
 void	init_directions(char *line, char *dir, t_info *data)
 {

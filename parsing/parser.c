@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
+#include "../includes/cub.h"
 
 void	init_argvs(t_argv_check *argvs)
 {

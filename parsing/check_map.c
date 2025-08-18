@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
+#include "../includes/cub.h"
 
 void	validate_border(char *line, t_info *data)
 {

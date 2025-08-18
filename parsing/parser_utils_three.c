@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
+#include "../includes/cub.h"
 
 void	exit_error(int stauts, char *message, t_info *data)
 {
