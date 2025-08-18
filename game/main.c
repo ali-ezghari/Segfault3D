@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     ft_memset(data, 0, sizeof(t_info));
     parser(argc, argv[1], data);
 
+    game.data = data;
     init_game(&game);
     init_mlx(&game);
     init_player(&game, &game.player);

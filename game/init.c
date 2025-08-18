@@ -2,36 +2,16 @@
 
 void get_map(t_game *game)
 {
-    char *map_data[] = {
-        "11111111111111111111",
-        "1N000000000000000001",
-        "10111101111101111001",
-        "10000100000100001001",
-        "10110101110101101001",
-        "10010100000100001001",
-        "10110101111101101001",
-        "10000100010000001001",
-        "10111101011111011001",
-        "10000001000000001001",
-        "10111000000001111001",
-        "10001000000100000001",
-        "10101111110111111001",
-        "10000000000100000001",
-        "10111111110111111001",
-        "10000010000000000001",
-        "10111101111101111001",
-        "10000000000000000001",
-        "10000000000000000001",
-        "11111111111111111111"};
-    int rows = game->mapRows;
+    int rows;
     int i;
 
+    rows = game->mapRows;
     i = -1;
     game->map = malloc(sizeof(char *) * (rows + 1));
     if (!game->map)
-        cleanup_and_exit(game, 1);
+        cleanup_and_exit(game, 1);// ! change to free everything
     while (++i < rows)
-        game->map[i] = strdup(map_data[i]);
+        game->map[i] = strdup(game->data->map[i]);
     game->map[rows] = NULL;
 }
 
@@ -63,6 +43,11 @@ static void init_player_rotation(t_player *player, char spawn_dir)
 
 void init_player(t_game *game, t_player *player)
 {
+    int x;
+    int y;
+
+    x = game->data->s_dir.x;
+    y = game->data->s_dir.y;
     player->radius = 6;
     player->moveSpeed = 5.00;
     player->turnDirection = 0;
@@ -71,16 +56,16 @@ void init_player(t_game *game, t_player *player)
 
     player->rotationSpeed = 4 * (PI / 180);
 
-    player->px = 1 * game->tile_size + game->tile_size / 2;
-    player->py = 1 * game->tile_size + game->tile_size / 2;
-    init_player_rotation(player, game->map[1][1]);
-    game->map[1][1] = '0';
+    player->px = x * game->tile_size + game->tile_size / 2;
+    player->py = y * game->tile_size + game->tile_size / 2;
+    init_player_rotation(player, game->map[y][x]);
+    game->map[y][x] = '0';
 }
 
 void init_game(t_game *game)
 {
-    game->mapRows = 20;
-    game->mapCols = 20;
+    game->mapRows = game->data->map_lenght;
+    game->mapCols = game->data->map_width;
     game->tile_size = 40;
     game->width = game->tile_size * game->mapCols;
     game->height = game->tile_size * game->mapRows;

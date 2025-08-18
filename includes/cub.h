@@ -108,6 +108,7 @@ typedef struct s_game
     struct s_ray *rays;
     struct s_player player;
     struct s_img img;
+    struct g_info *data;
 } t_game;
 
 typedef struct g_help_varible
@@ -235,7 +236,7 @@ void draw_player(t_game *game, t_player *player, int color);
 void update(t_game *game, t_player *player);
 
 void init_player(t_game *game, t_player *player);
-void init_game(t_game *game, t_info *data);
+void init_game(t_game *game);
 void init_mlx(t_game *game);
 
 
