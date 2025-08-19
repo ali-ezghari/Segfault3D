@@ -141,7 +141,7 @@ void render_3d_walls(t_game *game)
     int i;
 
     i = 0;
-    while (i < game->width) // game->width => Num of rays
+    while (i < game->width)
     {
         corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotationAngle);
 

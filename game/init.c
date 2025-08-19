@@ -66,7 +66,7 @@ void init_game(t_game *game)
 {
     game->mapRows = game->data->map_lenght;
     game->mapCols = game->data->map_width;
-    game->tile_size = 40;
+    game->tile_size = 64;
     game->width = 800;
     game->height = 800;
 

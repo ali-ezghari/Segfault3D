@@ -16,23 +16,30 @@ static void init_horz_ray(t_game *game, t_player *player, t_ray *ray, t_horz *h)
         h->step_x *= -1; 
 }
 
-static bool find_horz_wall_hit(t_game *game,
-                               t_ray *ray, t_horz *h)
+static bool	find_horz_wall_hit(t_game *game, t_ray *ray, t_horz *h)
 {
-    h->next_x = h->x_intercept;
-    h->next_y = h->y_intercept;
-    while (h->next_x >= 0 && h->next_x <= game->width && h->next_y >= 0 && h->next_y <= game->height)
-    {
-        if (has_wall_at(game, h->next_x, h->next_y - ray->is_ray_facing_up))
-        {
-            h->found = true;
-            return (true);
-        }
-        h->next_x += h->step_x;
-        h->next_y += h->step_y;
-    }
-    return (false);
+	int	map_x;
+	int	map_y;
+
+	h->next_x = h->x_intercept;
+	h->next_y = h->y_intercept;
+	while (1)
+	{
+		map_x = (int)(h->next_x / game->tile_size);
+		map_y = (int)(h->next_y / game->tile_size);
+		if (map_x < 0 || map_y < 0
+			|| map_x >= game->mapCols || map_y >= game->mapRows)
+			return (false);
+		if (has_wall_at(game, h->next_x, h->next_y - ray->is_ray_facing_up))
+		{
+			h->found = true;
+			return (true);
+		}
+		h->next_x += h->step_x;
+		h->next_y += h->step_y;
+	}
 }
+
 
 static void init_vert_ray(t_game *game, t_player *player, t_ray *ray, t_vert *v)
 {
@@ -50,22 +57,29 @@ static void init_vert_ray(t_game *game, t_player *player, t_ray *ray, t_vert *v)
         v->step_y *= -1;
 }
 
-static bool find_vert_wall_hit(t_game *game,
-                               t_ray *ray, t_vert *v)
+static bool	find_vert_wall_hit(t_game *game, t_ray *ray, t_vert *v)
 {
-    v->next_x = v->x_intercept;
-    v->next_y = v->y_intercept;
-    while (v->next_x >= 0 && v->next_x <= game->width && v->next_y >= 0 && v->next_y <= game->height)
-    {
-        if (has_wall_at(game, v->next_x - ray->is_ray_facing_left, v->next_y))
-        {
-            v->found = true;
-            return (true);
-        }
-        v->next_x += v->step_x;
-        v->next_y += v->step_y;
-    }
-    return (false);
+	int	map_x;
+	int	map_y;
+
+	v->next_x = v->x_intercept;
+	v->next_y = v->y_intercept;
+	while (1)
+	{
+		map_x = (int)(v->next_x / game->tile_size);
+		map_y = (int)(v->next_y / game->tile_size);
+		if (map_x < 0 || map_y < 0
+			|| map_x >= game->mapCols || map_y >= game->mapRows)
+			return (false);
+		if (has_wall_at(game, v->next_x - ray->is_ray_facing_left,
+				v->next_y))
+		{
+			v->found = true;
+			return (true);
+		}
+		v->next_x += v->step_x;
+		v->next_y += v->step_y;
+	}
 }
 
 static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
@@ -77,7 +91,6 @@ static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
         horz_dist = distance_bet_points(player->px, player->py, h->next_x, h->next_y);
     else
         horz_dist = (double)INT_MAX;
-
     if (v->found)
         vert_dist = distance_bet_points(player->px, player->py, v->next_x, v->next_y);
     else
