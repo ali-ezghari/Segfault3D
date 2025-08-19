@@ -21,20 +21,20 @@ void update(t_game *game, t_player *player)
     double move_step;
 
     //? rotating the player based on keypress right(2px to the right) left(2px to the left)
-    player->rotationAngle += player->turnDirection * player->rotationSpeed;
+    player->rotation_angle += player->turn_dir * player->rotation_speed;
 
-    // ? move the player forward or backwards based on the walkDirection
-    move_step = player->walkDirection * player->moveSpeed;
+    // ? move the player forward or backwards based on the walk_dir
+    move_step = player->walk_dir * player->move_speed;
 
-    new_player_x = player->px + cos(player->rotationAngle) * move_step;
-    new_player_y = player->py + sin(player->rotationAngle) * move_step;
+    new_player_x = player->px + cos(player->rotation_angle) * move_step;
+    new_player_y = player->py + sin(player->rotation_angle) * move_step;
 
     //? prevent the player from going through walls
 
-    if (player->strafedirection != 0)
+    if (player->strafe_dir != 0)
     {
-        new_player_x += cos(player->rotationAngle + (PI / 2)) * player->strafedirection * player->moveSpeed;
-        new_player_y += sin(player->rotationAngle + (PI / 2)) * player->strafedirection * player->moveSpeed;
+        new_player_x += cos(player->rotation_angle + (PI / 2)) * player->strafe_dir * player->move_speed;
+        new_player_y += sin(player->rotation_angle + (PI / 2)) * player->strafe_dir * player->move_speed;
     }
     if (!has_wall_at(game, new_player_x + 2, new_player_y + 2) &&
         !has_wall_at(game, new_player_x - 2, new_player_y - 2) &&
@@ -139,13 +139,15 @@ void render_3d_walls(t_game *game)
     int y_start;
     double corrected_distance;
     int i;
+    int fov_angle;
 
     i = 0;
+    fov_angle = 60 * (PI / 180);
     while (i < game->width)
     {
-        corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotationAngle);
+        corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotation_angle);
 
-        distance_to_pl = (game->width / 2) / tan(FOV_ANGLE / 2);
+        distance_to_pl = (game->width / 2) / tan(fov_angle / 2);
         proj_wall_height = (game->tile_size / corrected_distance) * distance_to_pl;
 
         wall_height = (int)proj_wall_height;
@@ -170,10 +172,10 @@ void render_2d_map(t_game *game)
     int tile_x, tile_y;
 
     x = 0;
-    while (x < game->mapRows)
+    while (x < game->map_rows)
     {
         y = 0;
-        while (y < game->mapCols)
+        while (y < game->map_cols)
         {
             tile_x = y * game->tile_size;
             tile_y = x * game->tile_size;

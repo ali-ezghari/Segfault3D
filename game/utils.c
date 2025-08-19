@@ -5,17 +5,17 @@ int handle_keypress(int keycode, t_game *game)
 	if (keycode == ESC_KEY)
 		cleanup_and_exit(game, 0);
 	else if (keycode == W_KEY)
-		game->player.walkDirection = 1;
+		game->player.walk_dir = 1;
 	else if (keycode == S_KEY)
-		game->player.walkDirection = -1;
+		game->player.walk_dir = -1;
 	else if (keycode == A_KEY)
-		game->player.strafedirection = -1;
+		game->player.strafe_dir = -1;
 	else if (keycode == D_KEY)
-		game->player.strafedirection = 1;
+		game->player.strafe_dir = 1;
 	else if (keycode == LEFT_ARROW)
-		game->player.turnDirection = -1;
+		game->player.turn_dir = -1;
 	else if (keycode == RIGHT_ARROW)
-		game->player.turnDirection = 1;
+		game->player.turn_dir = 1;
 	draw(game);
 	return (0);
 }
@@ -24,11 +24,11 @@ int handle_keyrelease(int keycode, t_game *game)
 	if (keycode == ESC_KEY)
 		cleanup_and_exit(game, 0);
 	else if (keycode == W_KEY || keycode == S_KEY)
-		game->player.walkDirection = 0;
+		game->player.walk_dir = 0;
 	else if (keycode == A_KEY || keycode == D_KEY)
-		game->player.strafedirection = 0;
+		game->player.strafe_dir = 0;
 	else if (keycode == LEFT_ARROW || keycode == RIGHT_ARROW)
-		game->player.turnDirection = 0;
+		game->player.turn_dir = 0;
 	return 0;
 }
 
@@ -72,7 +72,7 @@ double normalizeAngle(double angle)
 	return (angle);
 }
 
-double distance_bet_points(double x1, double y1, double x2, double y2)
+double _2points_dist(double x1, double y1, double x2, double y2)
 {
 	return (sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2)));
 }

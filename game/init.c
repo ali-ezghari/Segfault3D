@@ -5,7 +5,7 @@ void get_map(t_game *game)
     int rows;
     int i;
 
-    rows = game->mapRows;
+    rows = game->map_rows;
     i = -1;
     game->map = malloc(sizeof(char *) * (rows + 1));
     if (!game->map)
@@ -22,23 +22,23 @@ void init_ray(t_ray *ray, double ray_angle)
     ray->wall_hit_y = 0;
     ray->distance = 0;
 
-    ray->is_ray_facing_down = ray->ray_angle > 0 && ray->ray_angle < PI;
-    ray->is_ray_facing_up = !ray->is_ray_facing_down;
-    ray->is_ray_facing_right = ray->ray_angle < PI * 0.5 || ray->ray_angle > PI * 1.5;
-    ray->is_ray_facing_left = !ray->is_ray_facing_right;
+    ray->is_facing_down = ray->ray_angle > 0 && ray->ray_angle < PI;
+    ray->is_facing_up = !ray->is_facing_down;
+    ray->is_facing_right = ray->ray_angle < PI * 0.5 || ray->ray_angle > PI * 1.5;
+    ray->is_facing_left = !ray->is_facing_right;
     ray->was_hit_vertical = false;
 }
 
 static void init_player_rotation(t_player *player, char spawn_dir)
 {
     if (spawn_dir == 'S')
-        player->rotationAngle = PI / 2;
+        player->rotation_angle = PI / 2;
     else if (spawn_dir == 'N')
-        player->rotationAngle = 3 * PI / 2;
+        player->rotation_angle = 3 * PI / 2;
     else if (spawn_dir == 'W')
-        player->rotationAngle = PI;
+        player->rotation_angle = PI;
     else if (spawn_dir == 'E')
-        player->rotationAngle = 0;
+        player->rotation_angle = 0;
 }
 
 void init_player(t_game *game, t_player *player)
@@ -49,12 +49,12 @@ void init_player(t_game *game, t_player *player)
     x = game->data->s_dir.y;
     y = game->data->s_dir.x;
     player->radius = 6;
-    player->moveSpeed = 5.00;
-    player->turnDirection = 0;
-    player->walkDirection = 0;
-    player->strafedirection = 0;
+    player->move_speed = 5.00;
+    player->turn_dir = 0;
+    player->walk_dir = 0;
+    player->strafe_dir = 0;
 
-    player->rotationSpeed = 4 * (PI / 180);
+    player->rotation_speed = 4 * (PI / 180);
 
     player->px = x * game->tile_size + game->tile_size / 2;
     player->py = y * game->tile_size + game->tile_size / 2;
@@ -64,8 +64,8 @@ void init_player(t_game *game, t_player *player)
 
 void init_game(t_game *game)
 {
-    game->mapRows = game->data->map_lenght;
-    game->mapCols = game->data->map_width;
+    game->map_rows = game->data->map_lenght;
+    game->map_cols = game->data->map_width;
     game->tile_size = 64;
     game->width = 800;
     game->height = 800;
