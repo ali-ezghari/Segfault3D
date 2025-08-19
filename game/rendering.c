@@ -46,16 +46,15 @@ void update(t_game *game, t_player *player)
     }
 }
 
-static void ft_clear(t_img *img, int width, int height)
+static void ft_clear(t_game *game, int width, int height)
 {
     int total_pixels;
     int i;
     int *pixels;
 
-    pixels = (int *)img->img_pixel_ptr;
-    total_pixels = width * height;
-
     i = 0;
+    pixels = (int *)game->img.img_pixel_ptr;
+    total_pixels = width * height;
     while (i < total_pixels / 2)
         pixels[i++] = COLOR_GREEN;
     while (i < total_pixels)
@@ -191,7 +190,7 @@ void render_2d_map(t_game *game)
 
 void draw(t_game *game)
 {
-    ft_clear(&game->img, game->width, game->height);
+    ft_clear(game, game->width, game->height);
     update(game, &game->player);
     raycasting(game, &game->player);
     render_3d_walls(game);

@@ -46,8 +46,8 @@ void init_player(t_game *game, t_player *player)
     int x;
     int y;
 
-    x = game->data->s_dir.x;
-    y = game->data->s_dir.y;
+    x = game->data->s_dir.y;
+    y = game->data->s_dir.x;
     player->radius = 6;
     player->moveSpeed = 5.00;
     player->turnDirection = 0;
@@ -67,8 +67,8 @@ void init_game(t_game *game)
     game->mapRows = game->data->map_lenght;
     game->mapCols = game->data->map_width;
     game->tile_size = 40;
-    game->width = game->tile_size * game->mapCols;
-    game->height = game->tile_size * game->mapRows;
+    game->width = 800;
+    game->height = 800;
 
     get_map(game);
 
