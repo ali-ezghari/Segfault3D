@@ -1,203 +1,110 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rendering.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aezghari <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/19 21:38:33 by aezghari          #+#    #+#             */
+/*   Updated: 2025/08/19 21:58:57 by aezghari         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/cub.h"
 
-void render_rays(t_game *game, t_player *player)
+void	update(t_game *game, t_player *player)
 {
-    int i;
-    t_ray ray;
+	double	new_player_x;
+	double	new_player_y;
+	double	move_step;
 
-    i = 0;
-    while (i < game->width)
-    {
-        ray = game->rays[i];
-        draw_line(game, player->px * SCALE_FACTOR, player->py * SCALE_FACTOR, ray.wall_hit_x * SCALE_FACTOR, ray.wall_hit_y * SCALE_FACTOR, COLOR_RED);
-        i++;
-    }
+	player->rotation_angle += player->turn_dir * player->rotation_speed;
+	move_step = player->walk_dir * player->move_speed;
+	new_player_x = player->px + cos(player->rotation_angle) * move_step;
+	new_player_y = player->py + sin(player->rotation_angle) * move_step;
+	if (player->strafe_dir != 0)
+	{
+		new_player_x += cos(player->rotation_angle + (PI / 2))
+			* player->strafe_dir * player->move_speed;
+		new_player_y += sin(player->rotation_angle + (PI / 2))
+			* player->strafe_dir * player->move_speed;
+	}
+	if (!has_wall_at(game, new_player_x + 2, new_player_y + 2)
+		&& !has_wall_at(game, new_player_x - 2, new_player_y - 2)
+		&& !has_wall_at(game, new_player_x + 2, new_player_y - 2)
+		&& !has_wall_at(game, new_player_x - 2, new_player_y + 2))
+	{
+		player->px = new_player_x;
+		player->py = new_player_y;
+	}
 }
 
-void update(t_game *game, t_player *player)
+static void	ft_clear(t_game *game, int width, int height)
 {
-    double new_player_x;
-    double new_player_y;
-    double move_step;
+	int	total_pixels;
+	int	i;
+	int	*pixels;
 
-    //? rotating the player based on keypress right(2px to the right) left(2px to the left)
-    player->rotation_angle += player->turn_dir * player->rotation_speed;
-
-    // ? move the player forward or backwards based on the walk_dir
-    move_step = player->walk_dir * player->move_speed;
-
-    new_player_x = player->px + cos(player->rotation_angle) * move_step;
-    new_player_y = player->py + sin(player->rotation_angle) * move_step;
-
-    //? prevent the player from going through walls
-
-    if (player->strafe_dir != 0)
-    {
-        new_player_x += cos(player->rotation_angle + (PI / 2)) * player->strafe_dir * player->move_speed;
-        new_player_y += sin(player->rotation_angle + (PI / 2)) * player->strafe_dir * player->move_speed;
-    }
-    if (!has_wall_at(game, new_player_x + 2, new_player_y + 2) &&
-        !has_wall_at(game, new_player_x - 2, new_player_y - 2) &&
-        !has_wall_at(game, new_player_x + 2, new_player_y - 2) &&
-        !has_wall_at(game, new_player_x - 2, new_player_y + 2))
-    {
-        player->px = new_player_x;
-        player->py = new_player_y;
-    }
+	i = 0;
+	pixels = (int *)game->img.img_pixel_ptr;
+	total_pixels = width * height;
+	while (i < total_pixels / 2)
+		pixels[i++] = COLOR_GREEN;
+	while (i < total_pixels)
+		pixels[i++] = COLOR_GREY;
 }
 
-static void ft_clear(t_game *game, int width, int height)
+void	rec(t_game *game, int x, int y, int height)
 {
-    int total_pixels;
-    int i;
-    int *pixels;
+	int	i;
+	int	j;
 
-    i = 0;
-    pixels = (int *)game->img.img_pixel_ptr;
-    total_pixels = width * height;
-    while (i < total_pixels / 2)
-        pixels[i++] = COLOR_GREEN;
-    while (i < total_pixels)
-        pixels[i++] = COLOR_GREY;
+	i = 0;
+	while (i < 1) // 1 => width
+	{
+		j = 0;
+		while (j < height)
+		{
+			my_mlx_pixel_put(game, x + i, y + j, COLOR_WHITE);
+			j++;
+		}
+		i++;
+	}
 }
 
-void draw_rec(t_game *game, int x, int y, int size, int color)
+void	render_3d_walls(t_game *game, double fov_angle)
 {
-    int scaled_x;
-    int scaled_y;
-    int scaled_size;
-    int i;
-    int j;
+	double (dis_to_pl), (proj_wall_h), (wall_height), (corr_distance);
+	int		y_start;
+	int		i;
 
-    i = 0;
-    j = 0;
-    scaled_x = (int)(x * SCALE_FACTOR);
-    scaled_y = (int)(y * SCALE_FACTOR);
-    scaled_size = (int)(size * SCALE_FACTOR);
-    while (i <= scaled_size)
-    {
-        j = 0;
-        while (j <= scaled_size)
-        {
-            if (i == 0 || i == scaled_size || j == 0 || j == scaled_size)
-                my_mlx_pixel_put(game, scaled_x + i, scaled_y + j, COLOR_BLACK);
-            else
-                my_mlx_pixel_put(game, scaled_x + i, scaled_y + j, color);
-            j++;
-        }
-        i++;
-    }
+	i = 0;
+	while (i < game->width)
+	{
+		corr_distance = game->rays[i].distance
+			* cos(game->rays[i].ray_angle - game->player.rotation_angle);
+		dis_to_pl = (game->width / 2) / tan(fov_angle / 2);
+		proj_wall_h = (game->tile_size / corr_distance)
+			* dis_to_pl;
+		wall_height = (int)proj_wall_h;
+		y_start = (game->height / 2) - (proj_wall_h / 2);
+		if (y_start < 0)
+			y_start = 0;
+		if ((wall_height + y_start) > game->height)
+			wall_height = game->height - y_start;
+		if (wall_height <= 0)
+			continue ;
+		rec(game, i, y_start, wall_height);
+		i++;
+	}
 }
 
-void draw_player(t_game *game, t_player *player, int color)
+void	draw(t_game *game)
 {
-    int y;
-    int x;
-    int scaled_x;
-    int scaled_y;
-
-    y = -player->radius;
-    while (y <= player->radius)
-    {
-        x = -player->radius;
-        while (x <= player->radius)
-        {
-            if (x * x + y * y <= player->radius * player->radius)
-            {
-                scaled_x = SCALE_FACTOR * (player->px + x);
-                scaled_y = SCALE_FACTOR * (player->py + y);
-                my_mlx_pixel_put(game, scaled_x, scaled_y, color);
-            }
-            x++;
-        }
-        y++;
-    }
-}
-void rec(t_game *game, int x, int y, int width, int height, int color)
-{
-    int i;
-    int j;
-
-    i = 0;
-    while (i < width)
-    {
-        j = 0;
-        while (j < height)
-        {
-            my_mlx_pixel_put(game, x + i, y + j, color);
-            j++;
-        }
-        i++;
-    }
-}
-
-void render_3d_walls(t_game *game)
-{
-    double distance_to_pl;
-    double proj_wall_height;
-    double wall_height;
-    int y_start;
-    double corrected_distance;
-    int i;
-    int fov_angle;
-
-    i = 0;
-    fov_angle = 60 * (PI / 180);
-    while (i < game->width)
-    {
-        corrected_distance = game->rays[i].distance * cos(game->rays[i].ray_angle - game->player.rotation_angle);
-
-        distance_to_pl = (game->width / 2) / tan(fov_angle / 2);
-        proj_wall_height = (game->tile_size / corrected_distance) * distance_to_pl;
-
-        wall_height = (int)proj_wall_height;
-
-        y_start = (game->height / 2) - (proj_wall_height / 2);
-
-        if (y_start < 0)
-            y_start = 0;
-        wall_height = ((wall_height + y_start) > game->height) ? game->height - y_start : wall_height;
-        if (wall_height <= 0)
-            continue;
-        rec(game, i, y_start, 1, wall_height, COLOR_WHITE);
-        i++;
-    }
-}
-
-void render_2d_map(t_game *game)
-{
-    int x;
-    int y;
-    int tile_color;
-    int tile_x, tile_y;
-
-    x = 0;
-    while (x < game->map_rows)
-    {
-        y = 0;
-        while (y < game->map_cols)
-        {
-            tile_x = y * game->tile_size;
-            tile_y = x * game->tile_size;
-            if (game->map[x][y] == '1')
-                tile_color = COLOR_WHITE;
-            else
-                tile_color = COLOR_BLACK;
-            draw_rec(game, tile_x, tile_y, game->tile_size, tile_color);
-            y++;
-        }
-        x++;
-    }
-}
-
-void draw(t_game *game)
-{
-    ft_clear(game, game->width, game->height);
-    update(game, &game->player);
-    raycasting(game, &game->player);
-    render_3d_walls(game);
-    render_2d_map(game);
-    render_rays(game, &game->player);
-    draw_player(game, &game->player, COLOR_RED);
-    mlx_put_image_to_window(game->mlx_connection, game->win_window, game->img.img_ptr, 0, 0);
+	ft_clear(game, game->width, game->height);
+	update(game, &game->player);
+	raycasting(game, &game->player);
+	render_3d_walls(game, (60 * (PI / 180)));
+	mlx_put_image_to_window(game->mlx_connection, game->win_window,
+		game->img.img_ptr, 0, 0);
 }

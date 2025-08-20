@@ -6,7 +6,7 @@ GREEN_CHECK = \033[32m✅\033[0m
 CC = cc
 RM = rm -rf
 FLAGS = #-Wall -Wextra -Werror
-SRCS = game/main.c game/utils.c game/rendering.c game/raycasting.c game/init.c \
+SRCS = game/main.c game/utils.c game/utils2.c game/rendering.c game/raycasting.c game/dda.c game/init.c \
        parsing/parser.c parsing/parser_utils.c get_next_line/get_next_line_bonus.c \
        get_next_line/get_next_line_utils_bonus.c parsing/parser_utils_two.c \
        parsing/check_map.c parsing/init_color_dir.c parsing/parser_utils_three.c

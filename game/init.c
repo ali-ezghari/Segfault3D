@@ -1,116 +1,93 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aezghari <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/19 15:06:26 by aezghari          #+#    #+#             */
+/*   Updated: 2025/08/19 15:13:33 by aezghari         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/cub.h"
 
-void get_map(t_game *game)
+void	init_ray(t_ray *ray, double ray_angle)
 {
-    int rows;
-    int i;
-
-    rows = game->map_rows;
-    i = -1;
-    game->map = malloc(sizeof(char *) * (rows + 1));
-    if (!game->map)
-        cleanup_and_exit(game, 1);// ! change to free everything
-    while (++i < rows)
-        game->map[i] = strdup(game->data->map[i]);
-    game->map[rows] = NULL;
+	ray->ray_angle = ray_angle;
+	ray->wall_hit_x = 0;
+	ray->wall_hit_y = 0;
+	ray->distance = 0;
+	ray->is_facing_down = ray->ray_angle > 0 && ray->ray_angle < PI;
+	ray->is_facing_up = !ray->is_facing_down;
+	ray->is_facing_right = ray->ray_angle < PI * 0.5
+		||ray->ray_angle > PI * 1.5;
+	ray->is_facing_left = !ray->is_facing_right;
+	ray->was_hit_vertical = false;
 }
 
-void init_ray(t_ray *ray, double ray_angle)
+static void	init_player_rotation(t_player *player, char spawn_dir)
 {
-    ray->ray_angle = ray_angle;
-    ray->wall_hit_x = 0;
-    ray->wall_hit_y = 0;
-    ray->distance = 0;
-
-    ray->is_facing_down = ray->ray_angle > 0 && ray->ray_angle < PI;
-    ray->is_facing_up = !ray->is_facing_down;
-    ray->is_facing_right = ray->ray_angle < PI * 0.5 || ray->ray_angle > PI * 1.5;
-    ray->is_facing_left = !ray->is_facing_right;
-    ray->was_hit_vertical = false;
+	if (spawn_dir == 'S')
+		player->rotation_angle = PI / 2;
+	else if (spawn_dir == 'N')
+		player->rotation_angle = 3 * PI / 2;
+	else if (spawn_dir == 'W')
+		player->rotation_angle = PI;
+	else if (spawn_dir == 'E')
+		player->rotation_angle = 0;
 }
 
-static void init_player_rotation(t_player *player, char spawn_dir)
+void	init_player(t_game *game, t_player *player)
 {
-    if (spawn_dir == 'S')
-        player->rotation_angle = PI / 2;
-    else if (spawn_dir == 'N')
-        player->rotation_angle = 3 * PI / 2;
-    else if (spawn_dir == 'W')
-        player->rotation_angle = PI;
-    else if (spawn_dir == 'E')
-        player->rotation_angle = 0;
+	int	x;
+	int	y;
+
+	x = game->data->s_dir.y;
+	y = game->data->s_dir.x;
+	player->radius = 6;
+	player->move_speed = 5.00;
+	player->turn_dir = 0;
+	player->walk_dir = 0;
+	player->strafe_dir = 0;
+	player->rotation_speed = 4 * (PI / 180);
+	player->px = x * game->tile_size + game->tile_size / 2;
+	player->py = y * game->tile_size + game->tile_size / 2;
+	init_player_rotation(player, game->map[y][x]);
+	game->map[y][x] = '0';
 }
 
-void init_player(t_game *game, t_player *player)
+void	init_game(t_game *game)
 {
-    int x;
-    int y;
-
-    x = game->data->s_dir.y;
-    y = game->data->s_dir.x;
-    player->radius = 6;
-    player->move_speed = 5.00;
-    player->turn_dir = 0;
-    player->walk_dir = 0;
-    player->strafe_dir = 0;
-
-    player->rotation_speed = 4 * (PI / 180);
-
-    player->px = x * game->tile_size + game->tile_size / 2;
-    player->py = y * game->tile_size + game->tile_size / 2;
-    init_player_rotation(player, game->map[y][x]);
-    game->map[y][x] = '0';
+	game->map_rows = game->data->map_lenght;
+	game->map_cols = game->data->map_width;
+	game->tile_size = 64;
+	game->width = 800;
+	game->height = 800;
+	get_map(game);
+	game->mlx_connection = NULL;
+	game->win_window = NULL;
+	game->rays = NULL;
 }
 
-void init_game(t_game *game)
+void	init_mlx(t_game *game)
 {
-    game->map_rows = game->data->map_lenght;
-    game->map_cols = game->data->map_width;
-    game->tile_size = 64;
-    game->width = 800;
-    game->height = 800;
-
-    get_map(game);
-
-    game->mlx_connection = NULL;
-    game->win_window = NULL;
-    game->rays = NULL;
-}
-
-void cleanup_and_exit(t_game *game, int exit_code)
-{
-    if (game->img.img_ptr)
-        mlx_destroy_image(game->mlx_connection, game->img.img_ptr);
-    if (game->win_window)
-        mlx_destroy_window(game->mlx_connection, game->win_window);
-    if (game->mlx_connection)
-        mlx_destroy_display(game->mlx_connection);
-    if (game->mlx_connection)
-        free(game->mlx_connection);
-    if (game->rays)
-        free(game->rays);
-    exit(exit_code);
-}
-
-void init_mlx(t_game *game)
-{
-    game->mlx_connection = mlx_init();
-    if (!game->mlx_connection)
-        cleanup_and_exit(game, 1);
-
-    game->win_window = mlx_new_window(game->mlx_connection, game->width, game->height, "cub3d");
-    if (!game->win_window)
-        cleanup_and_exit(game, 1);
-
-    game->img.img_ptr = mlx_new_image(game->mlx_connection, game->width, game->height);
-    if (!game->img.img_ptr)
-        cleanup_and_exit(game, 1);
-
-    game->img.img_pixel_ptr = mlx_get_data_addr(
-        game->img.img_ptr,
-        &game->img.bits_per_pixel,
-        &game->img.line_length,
-        &game->img.endian);
-    if (!game->img.img_pixel_ptr)
-        cleanup_and_exit(game, 1);
+	game->mlx_connection = mlx_init();
+	if (!game->mlx_connection)
+		cleanup_and_exit(game, 1);
+	game->win_window = mlx_new_window(game->mlx_connection,
+			game->width, game->height, "cub3d");
+	if (!game->win_window)
+		cleanup_and_exit(game, 1);
+	game->img.img_ptr = mlx_new_image(game->mlx_connection,
+			game->width, game->height);
+	if (!game->img.img_ptr)
+		cleanup_and_exit(game, 1);
+	game->img.img_pixel_ptr = mlx_get_data_addr(
+			game->img.img_ptr,
+			&game->img.bits_per_pixel,
+			&game->img.line_length,
+			&game->img.endian);
+	if (!game->img.img_pixel_ptr)
+		cleanup_and_exit(game, 1);
 }

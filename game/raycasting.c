@@ -1,149 +1,79 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   raycasting.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aezghari <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/19 21:09:32 by aezghari          #+#    #+#             */
+/*   Updated: 2025/08/19 21:09:34 by aezghari         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/cub.h"
 
-static void init_horz_ray(t_game *game, t_player *player, t_ray *ray, t_horz *h)
+static void	set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
 {
-    h->y_intercept = floor(player->py / game->tile_size) * game->tile_size;
-    if (ray->is_facing_down)
-        h->y_intercept += game->tile_size;
-    h->x_intercept = player->px + (h->y_intercept - player->py) / tan(ray->ray_angle);
-    h->step_y = game->tile_size;
-    if (ray->is_facing_up)
-        h->step_y *= -1;
-    h->step_x = game->tile_size / tan(ray->ray_angle);
-    if (ray->is_facing_left && h->step_x > 0)
-        h->step_x *= -1;
-    if (ray->is_facing_right && h->step_x < 0)
-        h->step_x *= -1; 
-}
+	double	horz_dist;
+	double	vert_dist;
 
-static bool	find_horz_wall_hit(t_game *game, t_ray *ray, t_horz *h)
-{
-	int	map_x;
-	int	map_y;
-
-	h->next_x = h->x_intercept;
-	h->next_y = h->y_intercept;
-	while (1)
+	if (h->found)
+		horz_dist = _2points_dist(player->px, player->py, h->next_x, h->next_y);
+	else
+		horz_dist = (double)INT_MAX;
+	if (v->found)
+		vert_dist = _2points_dist(player->px, player->py, v->next_x, v->next_y);
+	else
+		vert_dist = (double)INT_MAX;
+	if (horz_dist < vert_dist)
 	{
-		map_x = (int)(h->next_x / game->tile_size);
-		map_y = (int)(h->next_y / game->tile_size);
-		if (map_x < 0 || map_y < 0
-			|| map_x >= game->map_cols || map_y >= game->map_rows)
-			return (false);
-		if (has_wall_at(game, h->next_x, h->next_y - ray->is_facing_up))
-		{
-			h->found = true;
-			return (true);
-		}
-		h->next_x += h->step_x;
-		h->next_y += h->step_y;
+		ray->wall_hit_x = h->next_x;
+		ray->wall_hit_y = h->next_y;
+		ray->distance = horz_dist;
+		ray->was_hit_vertical = false;
+	}
+	else
+	{
+		ray->wall_hit_x = v->next_x;
+		ray->wall_hit_y = v->next_y;
+		ray->distance = vert_dist;
+		ray->was_hit_vertical = true;
 	}
 }
 
-
-static void init_vert_ray(t_game *game, t_player *player, t_ray *ray, t_vert *v)
+static void	cast_ray(t_game *game, t_player *player, t_ray *ray)
 {
-    v->x_intercept = floor(player->px / game->tile_size) * game->tile_size;
-    if (ray->is_facing_right)
-        v->x_intercept += game->tile_size;
-    v->y_intercept = player->py + (v->x_intercept - player->px) * tan(ray->ray_angle);
-    v->step_x = game->tile_size;
-    if (ray->is_facing_left)
-        v->step_x *= -1;
-    v->step_y = game->tile_size * tan(ray->ray_angle);
-    if (ray->is_facing_up && v->step_y > 0)
-        v->step_y *= -1;
-    if (ray->is_facing_down && v->step_y < 0)
-        v->step_y *= -1;
+	t_horz	h;
+	t_vert	v;
+
+	memset(&h, 0, sizeof(t_horz));
+	memset(&v, 0, sizeof(t_vert));
+	init_horz_ray(game, player, ray, &h);
+	h.found = find_horz_wall_hit(game, ray, &h);
+	init_vert_ray(game, player, ray, &v);
+	v.found = find_vert_wall_hit(game, ray, &v);
+	set_ray_result(ray, &h, &v, player);
 }
 
-static bool	find_vert_wall_hit(t_game *game, t_ray *ray, t_vert *v)
+void	raycasting(t_game *game, t_player *player)
 {
-	int	map_x;
-	int	map_y;
+	double	ray_angle;
+	int		num_rays;
+	int		i;
+	double	fov_angle;
 
-	v->next_x = v->x_intercept;
-	v->next_y = v->y_intercept;
-	while (1)
+	num_rays = game->width;
+	fov_angle = 60 * (PI / 180);
+	ray_angle = player->rotation_angle - (fov_angle / 2);
+	i = 0;
+	game->rays = malloc(sizeof(t_ray) * num_rays);
+	if (!game->rays)
+		cleanup_and_exit(game, EXIT_FAILURE);
+	while (i < num_rays)
 	{
-		map_x = (int)(v->next_x / game->tile_size);
-		map_y = (int)(v->next_y / game->tile_size);
-		if (map_x < 0 || map_y < 0
-			|| map_x >= game->map_cols || map_y >= game->map_rows)
-			return (false);
-		if (has_wall_at(game, v->next_x - ray->is_facing_left,
-				v->next_y))
-		{
-			v->found = true;
-			return (true);
-		}
-		v->next_x += v->step_x;
-		v->next_y += v->step_y;
+		init_ray(&game->rays[i], normalize_angle(ray_angle));
+		cast_ray(game, player, &game->rays[i]);
+		ray_angle += fov_angle / num_rays;
+		i++;
 	}
-}
-
-static void set_ray_result(t_ray *ray, t_horz *h, t_vert *v, t_player *player)
-{
-    double horz_dist;
-    double vert_dist;
-
-    if (h->found)
-        horz_dist = _2points_dist(player->px, player->py, h->next_x, h->next_y);
-    else
-        horz_dist = (double)INT_MAX;
-    if (v->found)
-        vert_dist = _2points_dist(player->px, player->py, v->next_x, v->next_y);
-    else
-        vert_dist = (double)INT_MAX;
-    if (horz_dist < vert_dist)
-    {
-        ray->wall_hit_x = h->next_x;
-        ray->wall_hit_y = h->next_y;
-        ray->distance = horz_dist;
-        ray->was_hit_vertical = false;
-    }
-    else
-    {
-        ray->wall_hit_x = v->next_x;
-        ray->wall_hit_y = v->next_y;
-        ray->distance = vert_dist;
-        ray->was_hit_vertical = true;
-    }
-}
-
-static void cast_ray(t_game *game, t_player *player, t_ray *ray)
-{
-    t_horz h;
-    t_vert v;
-
-    memset(&h, 0, sizeof(t_horz));
-    memset(&v, 0, sizeof(t_vert));
-    init_horz_ray(game, player, ray, &h);
-    h.found = find_horz_wall_hit(game, ray, &h);
-    init_vert_ray(game, player, ray, &v);
-    v.found = find_vert_wall_hit(game, ray, &v);
-    set_ray_result(ray, &h, &v, player);
-}
-
-void raycasting(t_game *game, t_player *player)
-{
-    double ray_angle;
-    int num_rays;
-    int i;
-    int fov_angle;
-
-    num_rays = game->width;
-    fov_angle = 60 * (PI / 180);
-    ray_angle = player->rotation_angle - (fov_angle / 2);
-    i = 0;
-    game->rays = malloc(sizeof(t_ray) * num_rays);
-    if (!game->rays)
-        cleanup_and_exit(game, EXIT_FAILURE);
-    while (i < num_rays)
-    {
-        init_ray(&game->rays[i], normalizeAngle(ray_angle));
-        cast_ray(game, player, &game->rays[i]);
-        ray_angle += FOV_ANGLE / num_rays;
-        i++;
-    }
 }

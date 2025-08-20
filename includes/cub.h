@@ -222,22 +222,28 @@ void				replace_char_in_array(char **arr, char tar, char rep);
 char				*skip_empty_lines(int fd, char *line);
 
 // game functions 
+
+bool				find_vert_wall_hit(t_game *game, t_ray *ray, t_vert *v);
+void				init_vert_ray(t_game *game, t_player *player,
+						t_ray *ray, t_vert *v);
+void				init_horz_ray(t_game *game, t_player *player,
+						t_ray *ray, t_horz *h);
+bool				find_horz_wall_hit(t_game *game, t_ray *ray, t_horz *h);
+
 void				my_mlx_pixel_put(t_game *data, int x, int y, int color);
-double				normalizeAngle(double angle);
+double				normalize_angle(double angle);
 int					has_wall_at(t_game *game, int x, int y);
 double				_2points_dist(double x0, double y0, double x1, double y1);
 int					handle_keypress(int keycode, t_game *game);
 int					handle_keyrelease(int keycode, t_game *game);
 void				draw(t_game *game);
+void				get_map(t_game *game);
 
 void				raycasting(t_game *game, t_player *player);
-void				draw_line(t_game *game, int x0, int y0, int x1, int y1, int color);
 void				init_ray(t_ray *ray, double ray_angle);
 
 void				cleanup_and_exit(t_game *game, int exit_code);
 void				draw(t_game *game);
-void				draw_rec(t_game *game, int x, int y, int size, int color);
-void				draw_player(t_game *game, t_player *player, int color);
 
 void				update(t_game *game, t_player *player);
 void				init_player(t_game *game, t_player *player);
