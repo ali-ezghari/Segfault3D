@@ -108,10 +108,12 @@ typedef struct s_game
 	void			*mlx_connection;
 	void			*win_window;
 	char			**map;
+	double			distance_to_pl;
 	int				width;
 	int				height;
 	int				map_rows;
 	int				map_cols;
+	double			fov_angle;
 	int				tile_size;
 	struct s_ray	*rays;
 	struct s_player	player;
@@ -171,7 +173,7 @@ typedef struct g_info
 	t_help_varible	*v;
 	char			**map;
 	int				map_width;
-	int				map_lenght;
+	int				map_length;
 
 }					t_info;
 

@@ -60,7 +60,7 @@ void	rec(t_game *game, int x, int y, int height)
 	int	j;
 
 	i = 0;
-	while (i < 1) // 1 => width
+	while (i < 1)
 	{
 		j = 0;
 		while (j < height)
@@ -72,9 +72,11 @@ void	rec(t_game *game, int x, int y, int height)
 	}
 }
 
-void	render_3d_walls(t_game *game, double fov_angle)
+void	render_3d_walls(t_game *game)
 {
-	double (dis_to_pl), (proj_wall_h), (wall_height), (corr_distance);
+	double	proj_wall_h;
+	double	wall_height;
+	double	corr_distance;
 	int		y_start;
 	int		i;
 
@@ -83,9 +85,8 @@ void	render_3d_walls(t_game *game, double fov_angle)
 	{
 		corr_distance = game->rays[i].distance
 			* cos(game->rays[i].ray_angle - game->player.rotation_angle);
-		dis_to_pl = (game->width / 2) / tan(fov_angle / 2);
 		proj_wall_h = (game->tile_size / corr_distance)
-			* dis_to_pl;
+			* game->distance_to_pl;
 		wall_height = (int)proj_wall_h;
 		y_start = (game->height / 2) - (proj_wall_h / 2);
 		if (y_start < 0)
@@ -104,7 +105,7 @@ void	draw(t_game *game)
 	ft_clear(game, game->width, game->height);
 	update(game, &game->player);
 	raycasting(game, &game->player);
-	render_3d_walls(game, (60 * (PI / 180)));
+	render_3d_walls(game);
 	mlx_put_image_to_window(game->mlx_connection, game->win_window,
 		game->img.img_ptr, 0, 0);
 }

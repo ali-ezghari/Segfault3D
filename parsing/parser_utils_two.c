@@ -49,7 +49,7 @@ int	count_map_lines(int fd, t_info *data)
 		line = get_next_line(fd);
 	}
 	data->map_width = max_widht;
-	data->map_lenght = count;
+	data->map_length = count;
 	return (close(fd), count);
 }
 

@@ -60,11 +60,9 @@ void	raycasting(t_game *game, t_player *player)
 	double	ray_angle;
 	int		num_rays;
 	int		i;
-	double	fov_angle;
 
-	num_rays = game->width;
-	fov_angle = 60 * (PI / 180);
-	ray_angle = player->rotation_angle - (fov_angle / 2);
+    num_rays = game->width;
+    ray_angle = player->rotation_angle - (game->fov_angle / 2);
 	i = 0;
 	game->rays = malloc(sizeof(t_ray) * num_rays);
 	if (!game->rays)
@@ -73,7 +71,7 @@ void	raycasting(t_game *game, t_player *player)
 	{
 		init_ray(&game->rays[i], normalize_angle(ray_angle));
 		cast_ray(game, player, &game->rays[i]);
-		ray_angle += fov_angle / num_rays;
+		ray_angle += game->fov_angle / num_rays;
 		i++;
 	}
 }

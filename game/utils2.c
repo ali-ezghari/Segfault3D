@@ -19,8 +19,8 @@ int	has_wall_at(t_game *game, int x, int y)
 
 	map_x = x / game->tile_size;
 	map_y = y / game->tile_size;
-	if (map_x < 0 || map_x >= game->map_cols || 
-		map_y < 0 || map_y >= game->map_rows)
+	if (map_x < 0 || map_x >= game->map_cols
+		|| map_y < 0 || map_y >= game->map_rows)
 		return (1);
 	return (game->map[map_y][map_x] == '1');
 }

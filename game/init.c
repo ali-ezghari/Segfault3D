@@ -59,11 +59,13 @@ void	init_player(t_game *game, t_player *player)
 
 void	init_game(t_game *game)
 {
-	game->map_rows = game->data->map_lenght;
-	game->map_cols = game->data->map_width;
-	game->tile_size = 64;
 	game->width = 800;
 	game->height = 800;
+	game->map_rows = game->data->map_length;
+	game->map_cols = game->data->map_width;
+	game->fov_angle = 60 * (PI / 180);
+	game->tile_size = 64;
+	game->distance_to_pl = (game->width / 2) / tan(game->fov_angle / 2);
 	get_map(game);
 	game->mlx_connection = NULL;
 	game->win_window = NULL;
