@@ -69,6 +69,9 @@ void	get_map(t_game *game)
 	if (!game->map)
 		cleanup_and_exit(game, 1);
 	while (++i < rows)
+	{
+		printf("Copying row %d: %s\n", i, game->data->map[i]);
 		game->map[i] = strdup(game->data->map[i]);
+	}
 	game->map[rows] = NULL;
 }

@@ -53,7 +53,7 @@ void	init_player(t_game *game, t_player *player)
 	player->rotation_speed = 4 * (PI / 180);
 	player->px = x * game->tile_size + game->tile_size / 2;
 	player->py = y * game->tile_size + game->tile_size / 2;
-	init_player_rotation(player, game->map[y][x]);
+	init_player_rotation(player, game->data->s_dir.dir);
 	game->map[y][x] = '0';
 }
 
