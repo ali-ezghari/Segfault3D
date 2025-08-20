@@ -46,5 +46,6 @@ void	cleanup_and_exit(t_game *game, int exit_code)
 		free(game->mlx_connection);
 	if (game->rays)
 		free(game->rays);
+	exit_error(-1, NULL, game->data);
 	exit(exit_code);
 }

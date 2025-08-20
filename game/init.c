@@ -76,20 +76,20 @@ void	init_mlx(t_game *game)
 {
 	game->mlx_connection = mlx_init();
 	if (!game->mlx_connection)
-		cleanup_and_exit(game, 1);
+		cleanup_and_exit(game, EXIT_FAILURE);
 	game->win_window = mlx_new_window(game->mlx_connection,
 			game->width, game->height, "cub3d");
 	if (!game->win_window)
-		cleanup_and_exit(game, 1);
+		cleanup_and_exit(game, EXIT_FAILURE);
 	game->img.img_ptr = mlx_new_image(game->mlx_connection,
 			game->width, game->height);
 	if (!game->img.img_ptr)
-		cleanup_and_exit(game, 1);
+		cleanup_and_exit(game, EXIT_FAILURE);
 	game->img.img_pixel_ptr = mlx_get_data_addr(
 			game->img.img_ptr,
 			&game->img.bits_per_pixel,
 			&game->img.line_length,
 			&game->img.endian);
 	if (!game->img.img_pixel_ptr)
-		cleanup_and_exit(game, 1);
+		cleanup_and_exit(game, EXIT_FAILURE);
 }

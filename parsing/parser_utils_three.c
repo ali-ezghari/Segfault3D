@@ -12,7 +12,7 @@
 
 #include "../includes/cub.h"
 
-void	exit_error(int stauts, char *message, t_info *data)
+void	exit_error(int status, char *message, t_info *data)
 {
 	if (data->v)
 		free(data->v);
@@ -22,11 +22,11 @@ void	exit_error(int stauts, char *message, t_info *data)
 		free(data);
 	if (message)
 	{
-		write(stauts, "Error: \n", 8);
-		write(stauts, message, ft_strlen(message));
+		write(status, "Error: \n", 8);
+		write(status, message, ft_strlen(message));
 	}
-    if (stauts != -1)
-        exit(stauts);
+    if (status != -1)
+        exit(status);
 }
 
 void	read_map(int fd, t_info *data, int total_map_lines, char *line)

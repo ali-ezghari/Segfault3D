@@ -213,11 +213,11 @@ int					ft_notmemchar(const char *str, char c, int count_sp);
 char				**copy_array(char **original, int rows);
 
 // /* parser */
-// void exit_error(int stauts, char *message, t_info *data);
+// void exit_error(int status, char *message, t_info *data);
 
 /* parser_utils_three */
 int					is_valid_name_file(char *argv);
-void				exit_error(int stauts, char *message, t_info *data);
+void				exit_error(int status, char *message, t_info *data);
 void				read_map(int fd, t_info *data, int total_map_lines,
 						char *line);
 void				replace_char_in_array(char **arr, char tar, char rep);

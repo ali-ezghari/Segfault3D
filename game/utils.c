@@ -15,7 +15,7 @@
 int	handle_keypress(int keycode, t_game *game)
 {
 	if (keycode == ESC_KEY)
-		cleanup_and_exit(game, 0);
+		cleanup_and_exit(game, EXIT_SUCCESS);
 	else if (keycode == W_KEY)
 		game->player.walk_dir = 1;
 	else if (keycode == S_KEY)
@@ -28,6 +28,11 @@ int	handle_keypress(int keycode, t_game *game)
 		game->player.turn_dir = -1;
 	else if (keycode == RIGHT_ARROW)
 		game->player.turn_dir = 1;
+	if (game->rays)
+	{
+		free(game->rays);
+		game->rays = NULL;
+	}
 	draw(game);
 	return (0);
 }
@@ -35,7 +40,7 @@ int	handle_keypress(int keycode, t_game *game)
 int	handle_keyrelease(int keycode, t_game *game)
 {
 	if (keycode == ESC_KEY)
-		cleanup_and_exit(game, 0);
+		cleanup_and_exit(game, EXIT_SUCCESS);
 	else if (keycode == W_KEY || keycode == S_KEY)
 		game->player.walk_dir = 0;
 	else if (keycode == A_KEY || keycode == D_KEY)
@@ -67,7 +72,7 @@ void	get_map(t_game *game)
 	i = -1;
 	game->map = malloc(sizeof(char *) * (rows + 1));
 	if (!game->map)
-		cleanup_and_exit(game, 1);
+		cleanup_and_exit(game, EXIT_FAILURE);
 	while (++i < rows)
 	{
 		game->map[i] = strdup(game->data->map[i]);
