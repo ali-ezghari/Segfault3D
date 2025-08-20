@@ -46,11 +46,11 @@ void	init_player(t_game *game, t_player *player)
 	x = game->data->s_dir.y;
 	y = game->data->s_dir.x;
 	player->radius = 6;
-	player->move_speed = 5.00;
+	player->move_speed = 0.3;
 	player->turn_dir = 0;
 	player->walk_dir = 0;
 	player->strafe_dir = 0;
-	player->rotation_speed = 4 * (PI / 180);
+	player->rotation_speed = 0.3 * (PI / 180);
 	player->px = x * game->tile_size + game->tile_size / 2;
 	player->py = y * game->tile_size + game->tile_size / 2;
 	init_player_rotation(player, game->data->s_dir.dir);

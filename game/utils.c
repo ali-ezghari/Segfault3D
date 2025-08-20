@@ -33,7 +33,6 @@ int	handle_keypress(int keycode, t_game *game)
 		free(game->rays);
 		game->rays = NULL;
 	}
-	draw(game);
 	return (0);
 }
 

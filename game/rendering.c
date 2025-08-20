@@ -100,7 +100,7 @@ void	render_3d_walls(t_game *game)
 	}
 }
 
-void	draw(t_game *game)
+int	draw(t_game *game)
 {
 	ft_clear(game, game->width, game->height);
 	update(game, &game->player);
@@ -108,4 +108,5 @@ void	draw(t_game *game)
 	render_3d_walls(game);
 	mlx_put_image_to_window(game->mlx_connection, game->win_window,
 		game->img.img_ptr, 0, 0);
+	return (0);
 }

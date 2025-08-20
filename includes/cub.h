@@ -238,14 +238,13 @@ int					has_wall_at(t_game *game, int x, int y);
 double				_2points_dist(double x0, double y0, double x1, double y1);
 int					handle_keypress(int keycode, t_game *game);
 int					handle_keyrelease(int keycode, t_game *game);
-void				draw(t_game *game);
+int					draw(t_game *game);
 void				get_map(t_game *game);
 
 void				raycasting(t_game *game, t_player *player);
 void				init_ray(t_ray *ray, double ray_angle);
 
 void				cleanup_and_exit(t_game *game, int exit_code);
-void				draw(t_game *game);
 
 void				update(t_game *game, t_player *player);
 void				init_player(t_game *game, t_player *player);
