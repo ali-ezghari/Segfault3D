@@ -6,7 +6,7 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:50:39 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/15 16:25:45 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:31:02 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	read_map(int fd, t_info *data, int total_map_lines, char *line)
 	if (!data->map)
 		return ;
 	i = 0;
-	width = data->map_width;
+	width = data->map_width - 1;
 	while (line && (ft_strncmp(line, "\n", 1) != 0 || !ft_is_all_spaces(line)))
 	{
 		k = -1;

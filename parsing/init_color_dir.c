@@ -6,7 +6,7 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:49:10 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/14 16:06:39 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:38:48 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,24 @@ void	validate_and_set_rgb(char **rgb, t_color_data *color, t_info *data)
 	}
 }
 
+char *rgb_to_hexa(int r, int g, int b)
+{
+    static const char hex[] = "0123456789ABCDEF";
+
+	char *ret;
+	ret = malloc(8);
+
+	ret[0] = '#';
+    ret[1] = hex[(r / 16) % 16];
+    ret[2] = hex[r % 16];
+    ret[3] = hex[(g / 16) % 16];
+    ret[4] = hex[g % 16];
+    ret[5] = hex[(b / 16) % 16];
+    ret[6] = hex[b % 16];
+    ret[7] = '\0';
+	return (ret);
+}
+
 void	init_color(char *line, t_color_data *color, t_info *data)
 {
 	int		i;
@@ -79,9 +97,12 @@ void	init_color(char *line, t_color_data *color, t_info *data)
 	if (!rgb)
 		exit_error(2, "Memory allocation error\n", data);
 	validate_and_set_rgb(rgb, color, data);
-	color->num_color = (color->_rgb[0] << 16)
-		| (color->_rgb[1] << 8)
-		| color->_rgb[2];
+	color->hexa_color = rgb_to_hexa(color->_rgb[0], color->_rgb[1], color->_rgb[2]);	
+	// color->num_color = (color->_rgb[0] << 16)
+	// 	| (color->_rgb[1] << 8)
+	// 	| color->_rgb[2];
+
+	printf("[%s]\n", color->hexa_color);
 	free_str_array(rgb);
 }
 

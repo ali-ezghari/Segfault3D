@@ -6,7 +6,7 @@
 /*   By: mohalaou <mohalaou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/12 16:51:17 by mohalaou          #+#    #+#             */
-/*   Updated: 2025/08/15 16:15:51 by mohalaou         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:31:31 by mohalaou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ int	process_map(int fd, char *line, t_info *data, int total_map_lines)
 	if (!(ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line)))
 		return (free(line), 1);
 	free(line);
+	line = NULL;
 	line = skip_empty_lines(fd, get_next_line(fd));
 	read_map(fd, data, total_map_lines, line);
 	return (0);
@@ -50,7 +51,7 @@ int	init_data(int fd, t_info *data, int total_map_lines)
 			line++;
 		status = parse_line(line, argvs, data);
 		if (status == 1)
-			return (free(tmp), 1);
+		return (free(tmp), 1);
 		if (status == 2)
 		{
 			free(tmp);
