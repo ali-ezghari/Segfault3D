@@ -42,7 +42,7 @@ int	count_map_lines(int fd, t_info *data)
 	{
 		count++;
 		if (ft_strncmp(line, "\n", 1) == 0 || ft_is_all_spaces(line))
-			exit_error(2, "Invalid map, map shuld be the last think\n", data);
+			exit_error(2, "Invalid map: map must be the last thing\n", data);
 		if (ft_strlen(line) > max_widht)
 			max_widht = ft_strlen(line);
 		free(line);

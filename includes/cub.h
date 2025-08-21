@@ -146,7 +146,7 @@ typedef struct g_directions
 
 typedef struct g_color_data
 {
-	char			*hexa_color;
+	// char			*hexa_color;
 	int				num_color;
 	int				_rgb[3];
 }					t_color_data;

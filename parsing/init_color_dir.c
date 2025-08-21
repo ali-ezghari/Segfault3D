@@ -23,13 +23,13 @@ void	init_directions(char *line, char *dir, t_info *data)
 	if (tmp && tmp[ft_strlen(tmp) - 1] == '\n')
 		tmp[ft_strlen(tmp) - 1] = '\0';
 	if (tmp == NULL || ft_strncmp(tmp, "./", 2) || ft_strlen(tmp) <= 2)
-		exit_error(2, "Invalid one of texture, ronge texture path\n", data);
+		exit_error(2, "Invalid texture: wrong texture path\n", data);
 	else
 	{
 		ft_strlcpy(dir, tmp, PATH_MAX - 1);
 		fd = open(dir, O_RDONLY);
 		if (fd == -1)
-			exit_error(2, "Invalid one of texture can't open\n", data);
+			exit_error(2, "Invalid texture: can't be opened\n", data);
 	}
 }
 
@@ -67,24 +67,6 @@ void	validate_and_set_rgb(char **rgb, t_color_data *color, t_info *data)
 	}
 }
 
-char *rgb_to_hexa(int r, int g, int b)
-{
-    static const char hex[] = "0123456789ABCDEF";
-
-	char *ret;
-	ret = malloc(8);
-
-	ret[0] = '#';
-    ret[1] = hex[(r / 16) % 16];
-    ret[2] = hex[r % 16];
-    ret[3] = hex[(g / 16) % 16];
-    ret[4] = hex[g % 16];
-    ret[5] = hex[(b / 16) % 16];
-    ret[6] = hex[b % 16];
-    ret[7] = '\0';
-	return (ret);
-}
-
 void	init_color(char *line, t_color_data *color, t_info *data)
 {
 	int		i;
@@ -97,12 +79,9 @@ void	init_color(char *line, t_color_data *color, t_info *data)
 	if (!rgb)
 		exit_error(2, "Memory allocation error\n", data);
 	validate_and_set_rgb(rgb, color, data);
-	color->hexa_color = rgb_to_hexa(color->_rgb[0], color->_rgb[1], color->_rgb[2]);	
-	// color->num_color = (color->_rgb[0] << 16)
-	// 	| (color->_rgb[1] << 8)
-	// 	| color->_rgb[2];
-
-	printf("[%s]\n", color->hexa_color);
+	color->num_color = (color->_rgb[0] << 16)
+		| (color->_rgb[1] << 8)
+		| color->_rgb[2];
 	free_str_array(rgb);
 }
 

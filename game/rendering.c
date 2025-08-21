@@ -49,9 +49,9 @@ static void	ft_clear(t_game *game, int width, int height)
 	pixels = (int *)game->img.img_pixel_ptr;
 	total_pixels = width * height;
 	while (i < total_pixels / 2)
-		pixels[i++] = COLOR_GREEN;
+		pixels[i++] = game->data->color.ceil.num_color;
 	while (i < total_pixels)
-		pixels[i++] = COLOR_GREY;
+		pixels[i++] = game->data->color.floor.num_color;
 }
 
 void	rec(t_game *game, int x, int y, int height)
