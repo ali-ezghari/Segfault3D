@@ -94,7 +94,6 @@ typedef struct s_player
 {
 	double	px;
 	double	py;
-	int		radius;
 	int		turn_dir;
 	int		walk_dir;
 	double	rotation_angle;
@@ -107,7 +106,6 @@ typedef struct s_game
 {
 	void			*mlx_connection;
 	void			*win_window;
-	char			**map;
 	double			distance_to_pl;
 	int				width;
 	int				height;
@@ -240,7 +238,6 @@ double				_2points_dist(double x0, double y0, double x1, double y1);
 int					handle_keypress(int keycode, t_game *game);
 int					handle_keyrelease(int keycode, t_game *game);
 int					draw(t_game *game);
-void				get_map(t_game *game);
 
 void				raycasting(t_game *game, t_player *player);
 void				init_ray(t_ray *ray, double ray_angle);

@@ -61,9 +61,11 @@ void	raycasting(t_game *game, t_player *player)
 	int		num_rays;
 	int		i;
 
-    num_rays = game->width;
-    ray_angle = player->rotation_angle - (game->fov_angle / 2);
+	num_rays = game->width;
+	ray_angle = player->rotation_angle - (game->fov_angle / 2);
 	i = 0;
+	if (game->rays)
+		free(game->rays);
 	game->rays = malloc(sizeof(t_ray) * num_rays);
 	if (!game->rays)
 		cleanup_and_exit(game, EXIT_FAILURE);

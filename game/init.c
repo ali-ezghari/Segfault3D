@@ -45,7 +45,6 @@ void	init_player(t_game *game, t_player *player)
 
 	x = game->data->s_dir.y;
 	y = game->data->s_dir.x;
-	player->radius = 6;
 	player->move_speed = 0.3;
 	player->turn_dir = 0;
 	player->walk_dir = 0;
@@ -54,7 +53,6 @@ void	init_player(t_game *game, t_player *player)
 	player->px = x * game->tile_size + game->tile_size / 2;
 	player->py = y * game->tile_size + game->tile_size / 2;
 	init_player_rotation(player, game->data->s_dir.dir);
-	game->map[y][x] = '0';
 }
 
 void	init_game(t_game *game)
@@ -66,7 +64,6 @@ void	init_game(t_game *game)
 	game->fov_angle = 60 * (PI / 180);
 	game->tile_size = 64;
 	game->distance_to_pl = (game->width / 2) / tan(game->fov_angle / 2);
-	get_map(game);
 	game->mlx_connection = NULL;
 	game->win_window = NULL;
 	game->rays = NULL;

@@ -28,11 +28,6 @@ int	handle_keypress(int keycode, t_game *game)
 		game->player.turn_dir = -1;
 	else if (keycode == RIGHT_ARROW)
 		game->player.turn_dir = 1;
-	if (game->rays)
-	{
-		free(game->rays);
-		game->rays = NULL;
-	}
 	return (0);
 }
 
@@ -60,21 +55,4 @@ double	normalize_angle(double angle)
 double	_2points_dist(double x1, double y1, double x2, double y2)
 {
 	return (sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2)));
-}
-
-void	get_map(t_game *game)
-{
-	int	rows;
-	int	i;
-
-	rows = game->map_rows;
-	i = -1;
-	game->map = malloc(sizeof(char *) * (rows + 1));
-	if (!game->map)
-		cleanup_and_exit(game, EXIT_FAILURE);
-	while (++i < rows)
-	{
-		game->map[i] = strdup(game->data->map[i]);
-	}
-	game->map[rows] = NULL;
 }

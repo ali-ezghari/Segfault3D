@@ -22,7 +22,7 @@ int	has_wall_at(t_game *game, int x, int y)
 	if (map_x < 0 || map_x >= game->map_cols
 		|| map_y < 0 || map_y >= game->map_rows)
 		return (1);
-	return (game->map[map_y][map_x] == '1');
+	return (game->data->map[map_y][map_x] == '1');
 }
 
 void	my_mlx_pixel_put(t_game *data, int x, int y, int color)
