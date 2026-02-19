@@ -1,6 +1,6 @@
 # Cub3D
 
-A ray-casting-based 3D engine and first-person maze exploration built in C.
+A simple ray-casting 3D game inspired by Wolfenstein 3D, built in C.
 
 ## 🧠 Overview
 
